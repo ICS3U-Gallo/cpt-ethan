@@ -1,14 +1,11 @@
-# Game Title
-Explanation of the game.
+# Monopoly With A Twist
+Monopoly
 
 ### Group Repl
-https://repl.it/join/qwertyuiop-danielgallo
+https://repl.it/join/jiudlhnv-ethanlam1234
 
 ### Members
-- **Mr. Gallo** https://repl.it/join/abcdefghij-danielgallo
-- **Mr. Smith** https://repl.it/join/abcdefghij-mrsmith
-- **Mr. White** https://repl.it/join/abcdefghij-mrwhite
-- **Mr. Brown** https://repl.it/join/abcdefghij-mrbrown
+- **Ethan Lam** https://repl.it/join/jiudlhnv-ethanlam1234
 
 ---
 

@@ -1,5 +1,5 @@
 # Monopoly With A Twist
-Monopoly
+Monopoly With A Twist is a virtual board game similar to Monopoly where players try to obtain as many properties as possible. The challenge with this game is that there are puzzles and problems to solve before the player is allowed to purchase property. 
 
 ### Group Repl
 https://repl.it/join/jiudlhnv-ethanlam1234

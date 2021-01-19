@@ -675,6 +675,7 @@ def print_rules() -> None:
     print()
     print(title)
     print("---------------------------------")
+    print("The rules have yet to be written.")
 
 
 def add_colour(text: str, colour: str, bold: bool) -> str:

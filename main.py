@@ -4,7 +4,8 @@ from typing import List, Any
 import random
 
 
-first_loop = True
+FIRST_LOOP = True
+NOBODY = -1
 
 def main():
     game_title = "MONOPOLY WITH A TWIST!"
@@ -56,14 +57,20 @@ def start_game() -> None:
     
     grids = set_up_grids()
 
-    display_board(players, grids)
+    number_in_cycle = 2
+    display_board(players, grids, number_in_cycle)
     roll_dice(players)
 
     while True:
         clear_screen()
-        display_board(players, grids)
-        follow_up(players, grids)
-        display_board(players, grids)
+        number_in_cycle = 1
+        display_board(players, grids, number_in_cycle)
+        follow_up_info = follow_up(players, grids)
+        if follow_up_info[0]:
+            number_in_cycle = 2
+            clear_screen()
+            print(follow_up_info[1])
+            display_board(players, grids, number_in_cycle)
         roll_dice(players)
 
 
@@ -120,7 +127,7 @@ def set_up_grids() -> List[Any]:
 
         grid = {
             "name": grid_name,
-            "belongs_to": -1,
+            "belongs_to": NOBODY,
             "communities": 0,
             "purchaseable": boolean,
             "initial_cost": initial_cost,
@@ -135,62 +142,88 @@ def set_up_grids() -> List[Any]:
     return grids
 
 
-def follow_up(player_info: List[Any], grid_info: List[Any]) -> None:
+def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
     """Changes information about the player based on their decisions of what to do next.
 
     Args:
         player_info: Information about each player.
         grid_info: Information about each grid.
+
+    Returns:
+        True if the player was able to choose something. False otherwise.
     
     Done by: Ethan Lam
     """
-    i = 0
-    while i < len(player_info):
-        if player_info[i]["player_turn"]:
-            break
-        i += 1
-    name = player_info[i]["name"]
-    grid = player_info[i]["grid_pos"]
+    given_choice = False
+    sentence = ""
+    current_player = get_current_player_turn(player_info)
+    
+    name = player_info[current_player]["name"]
+    grid = player_info[current_player]["grid_pos"]
     grid_name = grid_info[grid]["name"]
-    if grid_info[grid]["purchaseable"] and (grid_info[grid]["belongs_to"] == -1 or grid_info[grid]["belongs_to"] == i):
-        while True:
-            print()
-            print("[1] Yes")
-            print("[2] No")
+    if grid_info[grid]["purchaseable"] and player_info[current_player]["money"] - grid_info[grid]["initial_cost"] >= 0 and player_info[current_player]["money"] - grid_info[grid]["upgrade_cost"] >= 0:
+        if grid_info[grid]["belongs_to"] == NOBODY:
+            given_choice = True
+            while True:
+                print()
+                print("[1] Yes")
+                print("[2] No")
 
-            choice = input("> ")
-            if choice == "1":
-                if grid_info[grid]["belongs_to"] == -1:
-                    if player_info[i]["money"] - grid_info[grid]["initial_cost"] >= 0:
-                        player_info[i]["money"] -= grid_info[grid]["initial_cost"]
-                        grid_info[grid]["belongs_to"] = i
-                        clear_screen()
-                        print(f"{name} has successfully purchased {grid_name}!")
-                        break
-                    else:
-                        print("Not enough money!")
+                choice = input("> ")
+                if choice == "1":
+                    player_info[current_player]["money"] -= grid_info[grid]["initial_cost"]
+                    grid_info[grid]["belongs_to"] = current_player
+                    sentence = f"{name} has successfully purchased {grid_name}!"
+                    break
+
+                elif choice == "2":
+                    break
                 else:
-                    if player_info[i]["money"] - grid_info[grid]["upgrade"] >= 0:
-                        player_info[i]["money"] -= grid_info[grid]["upgrade"]
-                        grid_info[grid]["communities"] += 1
-                        print(f"{name} has added a community to {grid_name}!")
-                        clear_screen()
-                        break
-                    else:
-                        print("Not enough money!")
-            elif choice == "2":
-                clear_screen()
-                break
-            else:
-                print("Invalid option.")
+                    print("Invalid option.")
+
+        elif grid_info[grid]["belongs_to"] == current_player:
+            given_choice = True
+            while True:
+                print()
+                print("[1] Yes")
+                print("[2] No")
+
+                choice = input("> ")
+                if choice == "1":
+                    player_info[current_player]["money"] -= grid_info[grid]["upgrade_cost"]
+                    grid_info[grid]["communities"] += 1
+                    sentence = f"{name} has added a community to {grid_name}!"
+                    break
+                
+                elif choice == "2":
+                    break
+                else:
+                    print("Invalid option.")
 
 
-    player_info[i]["player_turn"] = False
+    player_info[current_player]["player_turn"] = False
 
-    i += 1
-    if i >= len(player_info):
-        i -= len(player_info)
-    player_info[i]["player_turn"] = True
+    current_player += 1
+    if current_player >= len(player_info):
+        current_player -= len(player_info)
+    player_info[current_player]["player_turn"] = True
+    return [given_choice, sentence]
+
+
+def get_current_player_turn(player_information: List[Any]) -> int:
+    """Gets the index of the current player.
+
+    Args:
+        player_information: Information about each player.
+
+    Returns:
+        The index of the current player.
+    """
+    i = 0
+    while i < len(player_information):
+        if player_information[i]["player_turn"]:
+            return i
+        i += 1
 
 
 def clear_screen() -> None:
@@ -209,14 +242,10 @@ def roll_dice(player_information: List[Any]) -> None:
     
     Done by: Ethan Lam
     """
-    i = 0
-    while i < len(player_information):
-        if player_information[i]["player_turn"]:
-            break
-        i += 1
+    current_player = get_current_player_turn(player_information)
     
     print()
-    print("It is now " + player_information[i]["name"] + "'s turn.")
+    print("It is now " + player_information[current_player]["name"] + "'s turn.")
     print("You can choose to roll 1, 2, or 3 dice.")
     print("For every additional dice after 1, it costs $50 more.")
     while True:
@@ -230,8 +259,8 @@ def roll_dice(player_information: List[Any]) -> None:
                 print("Invalid choice - you must roll at least 1 dice, maximum of 3.")
                 print()
         
-        if player_information[i]["money"] - 50 * (number_of_rolls - 1) >= 0:
-            player_information[i]["money"] -= 50 * (number_of_rolls - 1)
+        if player_information[current_player]["money"] - 50 * (number_of_rolls - 1) >= 0:
+            player_information[current_player]["money"] -= 50 * (number_of_rolls - 1)
             break
         else:
             print("Not enough money!")
@@ -244,13 +273,13 @@ def roll_dice(player_information: List[Any]) -> None:
         roll += number
         j += 1
 
-    player_information[i]["roll"] = roll
+    player_information[current_player]["roll"] = roll
 
-    player_information[i]["grid_pos"] += roll
-    if player_information[i]["grid_pos"] >= 36:
-        player_information[i]["grid_pos"] -= 36
-        player_information[i]["money"] += 200
-        player_information[i]["passed_go"] = True
+    player_information[current_player]["grid_pos"] += roll
+    if player_information[current_player]["grid_pos"] >= 36:
+        player_information[current_player]["grid_pos"] -= 36
+        player_information[current_player]["money"] += 200
+        player_information[current_player]["passed_go"] = True
 
 
 def set_up_game() -> List[Any]:
@@ -415,26 +444,24 @@ def print_player_settings(player_info: List[Any]) -> None:
     print()
 
 
-def display_board(new_player_info: List[Any], grid_info: List[Any]) -> None:
+def display_board(new_player_info: List[Any], grid_info: List[Any], board_display_cycle: int) -> None:
     """Displays the updated board.
 
     Args:
         new_player_info: Updated information about the players and the game.
         grid_info: Information about the purpose of each grid.
+        board_display_cycle: The number of times the function has been called in the cycle.
 
     Done by: Ethan Lam
     """
-    i = 0
-    while i < len(new_player_info):
-        if new_player_info[i]["player_turn"]:
-            break
-        i += 1
-    name = new_player_info[i]["name"]
-    roll = new_player_info[i]["roll"]
-    global first_loop
-    if first_loop:
+    global FIRST_LOOP
+    current_player = get_current_player_turn(new_player_info)
+
+    name = new_player_info[current_player]["name"]
+    roll = new_player_info[current_player]["roll"]
+    if FIRST_LOOP:
         roll_str = center_board_text(f"To begin, {name} must first roll.")
-    elif roll == 0:
+    elif board_display_cycle == 2:
         roll_str = center_board_text(f"Now, {name} must roll.")
     else:
         roll_str = center_board_text(f"{name} rolled a {roll}.")
@@ -444,7 +471,7 @@ def display_board(new_player_info: List[Any], grid_info: List[Any]) -> None:
         players_money.append(center_board_text(""))
     
     j = 0
-    while j < len(new_player_info):
+    while j < len(new_player_info):  # Creates strings for each player's money to display later
         temp_name = new_player_info[j]["name"]
         temp_money = new_player_info[j]["money"]
         temp_visuals = new_player_info[j]["char_representation"]
@@ -452,36 +479,46 @@ def display_board(new_player_info: List[Any], grid_info: List[Any]) -> None:
         j += 1
 
     add_200 = center_board_text("")
-    if new_player_info[i]["passed_go"]:
+    if new_player_info[current_player]["passed_go"] and board_display_cycle == 1:
         add_200 = center_board_text(f"{name} passed GO! You got $200!")
-        new_player_info[i]["passed_go"] = False
+        new_player_info[current_player]["passed_go"] = False
 
     placements = grid_to_string_pos(new_player_info)
 
-    grid = new_player_info[i]["grid_pos"]
+    grid = new_player_info[current_player]["grid_pos"]
     grid_name = grid_info[grid]["name"]
     landed_on = center_board_text("")
-    if grid_name == "Chance Card":
-        landed_on = center_board_text(f"You landed on a {grid_name}.")
-    elif grid_name == "Pay Money":
-        landed_on = center_board_text(f"You landed on a reserved area.")
-    elif grid == 16 or grid == 19 or grid == 30 or grid == 32:
-        landed_on = center_board_text(f"You get {grid_name}!")
-    elif grid_name == "JAIL":
-        landed_on = center_board_text(f"GO TO {grid_name}!")
-    elif roll != 0:
-        landed_on = center_board_text(f"You landed on {grid_name}.")
+
+    if board_display_cycle == 1:
+        if grid_name == "Chance Card":
+            landed_on = center_board_text(f"You landed on a {grid_name}.")
+        elif grid_name == "Pay Money":
+            landed_on = center_board_text(f"You landed on a reserved area.")
+        elif grid == 16 or grid == 19 or grid == 30 or grid == 32:
+            landed_on = center_board_text(f"You get {grid_name}!")
+        elif grid_name == "JAIL":
+            landed_on = center_board_text(f"GO TO {grid_name}!")
+        elif roll != 0:
+            landed_on = center_board_text(f"You landed on {grid_name}.")
 
     belongs_to = grid_info[grid]["belongs_to"]
     worth = grid_info[grid]["worth"]
     question = center_board_text("")
-    if grid_info[grid]["purchaseable"]:
-        if belongs_to == -1:
-            question = center_board_text("Would you like to buy this city?")
-        elif belongs_to == i:
-            question = center_board_text("Would you like to build a community?")
+    
+    if grid_info[grid]["purchaseable"] and board_display_cycle == 1:  # Generates questions on purchaseable grids
+        if belongs_to == NOBODY:
+            if new_player_info[current_player]["money"] >= grid_info[grid]["initial_cost"]:
+                question = center_board_text("Would you like to buy this city?")
+            else:
+                question = center_board_text("You cannot afford this city.")
+        elif belongs_to == current_player:
+            if new_player_info[current_player]["money"] >= grid_info[grid]["upgrade_cost"]:
+                question = center_board_text("Would you like to build a community?")
+            else:
+                question = center_board_text("You cannot afford a community.")
         else:
-            question = center_board_text(f"You paid Player {belongs_to + 1} ${worth}")
+            owner = new_player_info[belongs_to]["name"]
+            question = center_board_text(f"You paid {owner} ${worth}")
 
     board = f"""     GO   NA   NA   CC   NA   NA   CC   NA   NA   FP
    ---------------------------------------------------
@@ -514,7 +551,7 @@ NA |    |                                       |    | NA
 
     i = 0
     while i < len(grid_info):
-        if grid_info[i]["belongs_to"] != -1:
+        if grid_info[i]["belongs_to"] != NOBODY:
             board = board[:grid_info[i]["placement"]] + grid_info[i]["special_char"] * 2 + board[grid_info[i]["placement"] + 2:]
         i += 1
     
@@ -553,7 +590,7 @@ NA |    |                                       |    | NA
                 j += 1
             i += 1
 
-    first_loop = False
+    FIRST_LOOP = False
     print()
     print(board)
 

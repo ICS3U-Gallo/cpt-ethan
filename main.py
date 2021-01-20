@@ -6,6 +6,7 @@ import random
 
 FIRST_LOOP = True
 NOBODY = -1
+CURRENT_PLAYER = 0
 
 def main():
     game_title = "MONOPOLY WITH A TWIST!"
@@ -106,9 +107,9 @@ def set_up_grids() -> List[Any]:
 
     i = 0
     while i < 36:
-        boolean = True
+        purchaseable = True
         if i in unpurchaseable_grids:
-            boolean = False
+            purchaseable = False
 
         grid_name = grid_names[i]
         initial_cost = grid_initial_costs[i]
@@ -129,7 +130,7 @@ def set_up_grids() -> List[Any]:
             "name": grid_name,
             "belongs_to": NOBODY,
             "communities": 0,
-            "purchaseable": boolean,
+            "purchaseable": purchaseable,
             "initial_cost": initial_cost,
             "upgrade_cost": upgrade_cost,
             "worth": starting_worth,
@@ -150,18 +151,20 @@ def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
         grid_info: Information about each grid.
 
     Returns:
-        True if the player was able to choose something. False otherwise.
+        A list of a boolean and a string.
+        The boolean is True if the player was able to choose something. False otherwise.
+        The string is the sentence returned based on the player's choice.
     
     Done by: Ethan Lam
     """
+    global CURRENT_PLAYER
     given_choice = False
     sentence = ""
-    current_player = get_current_player_turn(player_info)
     
-    name = player_info[current_player]["name"]
-    grid = player_info[current_player]["grid_pos"]
+    name = player_info[CURRENT_PLAYER]["name"]
+    grid = player_info[CURRENT_PLAYER]["grid_pos"]
     grid_name = grid_info[grid]["name"]
-    if grid_info[grid]["purchaseable"] and player_info[current_player]["money"] - grid_info[grid]["initial_cost"] >= 0 and player_info[current_player]["money"] - grid_info[grid]["upgrade_cost"] >= 0:
+    if grid_info[grid]["purchaseable"] and player_info[CURRENT_PLAYER]["money"] - grid_info[grid]["initial_cost"] >= 0 and player_info[CURRENT_PLAYER]["money"] - grid_info[grid]["upgrade_cost"] >= 0:
         if grid_info[grid]["belongs_to"] == NOBODY:
             given_choice = True
             while True:
@@ -171,8 +174,8 @@ def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
 
                 choice = input("> ")
                 if choice == "1":
-                    player_info[current_player]["money"] -= grid_info[grid]["initial_cost"]
-                    grid_info[grid]["belongs_to"] = current_player
+                    player_info[CURRENT_PLAYER]["money"] -= grid_info[grid]["initial_cost"]
+                    grid_info[grid]["belongs_to"] = CURRENT_PLAYER
                     sentence = f"{name} has successfully purchased {grid_name}!"
                     break
 
@@ -181,7 +184,7 @@ def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
                 else:
                     print("Invalid option.")
 
-        elif grid_info[grid]["belongs_to"] == current_player:
+        elif grid_info[grid]["belongs_to"] == CURRENT_PLAYER:
             given_choice = True
             while True:
                 print()
@@ -190,7 +193,7 @@ def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
 
                 choice = input("> ")
                 if choice == "1":
-                    player_info[current_player]["money"] -= grid_info[grid]["upgrade_cost"]
+                    player_info[CURRENT_PLAYER]["money"] -= grid_info[grid]["upgrade_cost"]
                     grid_info[grid]["communities"] += 1
                     sentence = f"{name} has added a community to {grid_name}!"
                     break
@@ -200,30 +203,10 @@ def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
                 else:
                     print("Invalid option.")
 
-
-    player_info[current_player]["player_turn"] = False
-
-    current_player += 1
-    if current_player >= len(player_info):
-        current_player -= len(player_info)
-    player_info[current_player]["player_turn"] = True
+    CURRENT_PLAYER += 1
+    if CURRENT_PLAYER >= len(player_info):
+        CURRENT_PLAYER -= len(player_info)
     return [given_choice, sentence]
-
-
-def get_current_player_turn(player_information: List[Any]) -> int:
-    """Gets the index of the current player.
-
-    Args:
-        player_information: Information about each player.
-
-    Returns:
-        The index of the current player.
-    """
-    i = 0
-    while i < len(player_information):
-        if player_information[i]["player_turn"]:
-            return i
-        i += 1
 
 
 def clear_screen() -> None:
@@ -242,10 +225,9 @@ def roll_dice(player_information: List[Any]) -> None:
     
     Done by: Ethan Lam
     """
-    current_player = get_current_player_turn(player_information)
     
     print()
-    print("It is now " + player_information[current_player]["name"] + "'s turn.")
+    print("It is now " + player_information[CURRENT_PLAYER]["name"] + "'s turn.")
     print("You can choose to roll 1, 2, or 3 dice.")
     print("For every additional dice after 1, it costs $50 more.")
     while True:
@@ -259,8 +241,8 @@ def roll_dice(player_information: List[Any]) -> None:
                 print("Invalid choice - you must roll at least 1 dice, maximum of 3.")
                 print()
         
-        if player_information[current_player]["money"] - 50 * (number_of_rolls - 1) >= 0:
-            player_information[current_player]["money"] -= 50 * (number_of_rolls - 1)
+        if player_information[CURRENT_PLAYER]["money"] - 50 * (number_of_rolls - 1) >= 0:
+            player_information[CURRENT_PLAYER]["money"] -= 50 * (number_of_rolls - 1)
             break
         else:
             print("Not enough money!")
@@ -273,13 +255,13 @@ def roll_dice(player_information: List[Any]) -> None:
         roll += number
         j += 1
 
-    player_information[current_player]["roll"] = roll
+    player_information[CURRENT_PLAYER]["roll"] = roll
 
-    player_information[current_player]["grid_pos"] += roll
-    if player_information[current_player]["grid_pos"] >= 36:
-        player_information[current_player]["grid_pos"] -= 36
-        player_information[current_player]["money"] += 200
-        player_information[current_player]["passed_go"] = True
+    player_information[CURRENT_PLAYER]["grid_pos"] += roll
+    if player_information[CURRENT_PLAYER]["grid_pos"] >= 36:
+        player_information[CURRENT_PLAYER]["grid_pos"] -= 36
+        player_information[CURRENT_PLAYER]["money"] += 200
+        player_information[CURRENT_PLAYER]["passed_go"] = True
 
 
 def set_up_game() -> List[Any]:
@@ -311,7 +293,7 @@ def set_up_game() -> List[Any]:
             print()
     print()
     print("Please enter the amount of money each player starts with (recommended: 500)")
-    starting_money = get_positive_integer("> ")
+    starting_money = get_positive_integer_max_5000("> ")
     
     colour_list = ["blue", "green", "orange", "red"]
 
@@ -381,7 +363,6 @@ def set_up_game() -> List[Any]:
         player = {
             "money": starting_money,
             "cities": [],
-            "player_turn": False,
             "roll": 0,
             "grid_pos": 0,
             "name": player_name,
@@ -394,7 +375,6 @@ def set_up_game() -> List[Any]:
         players.append(player)
         i += 1
     
-    players[0]["player_turn"] = True
     print_player_settings(players)
 
     return players
@@ -420,7 +400,7 @@ def print_player_settings(player_info: List[Any]) -> None:
     print()
     print(settings)
 
-    # Prints the player settings:
+    # Prints the player settings
     subtitles = ""
     names = ""
     player_colours = ""
@@ -454,11 +434,11 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], board_displa
 
     Done by: Ethan Lam
     """
+    global CURRENT_PLAYER
     global FIRST_LOOP
-    current_player = get_current_player_turn(new_player_info)
 
-    name = new_player_info[current_player]["name"]
-    roll = new_player_info[current_player]["roll"]
+    name = new_player_info[CURRENT_PLAYER]["name"]
+    roll = new_player_info[CURRENT_PLAYER]["roll"]
     if FIRST_LOOP:
         roll_str = center_board_text(f"To begin, {name} must first roll.")
     elif board_display_cycle == 2:
@@ -467,25 +447,25 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], board_displa
         roll_str = center_board_text(f"{name} rolled a {roll}.")
     
     players_money = []
-    for j in range(4):
+    for i in range(4):
         players_money.append(center_board_text(""))
     
-    j = 0
-    while j < len(new_player_info):  # Creates strings for each player's money to display later
-        temp_name = new_player_info[j]["name"]
-        temp_money = new_player_info[j]["money"]
-        temp_visuals = new_player_info[j]["char_representation"]
-        players_money[j] = center_board_text(f"{temp_visuals} {temp_name}'s money: ${temp_money}")
-        j += 1
+    i = 0
+    while i < len(new_player_info):  # Creates strings for each player's money to display later
+        temp_name = new_player_info[i]["name"]
+        temp_money = new_player_info[i]["money"]
+        temp_visuals = new_player_info[i]["char_representation"]
+        players_money[i] = center_board_text(f"{temp_visuals} {temp_name}'s money: ${temp_money}")
+        i += 1
 
     add_200 = center_board_text("")
-    if new_player_info[current_player]["passed_go"] and board_display_cycle == 1:
+    if new_player_info[CURRENT_PLAYER]["passed_go"] and board_display_cycle == 1:
         add_200 = center_board_text(f"{name} passed GO! You got $200!")
-        new_player_info[current_player]["passed_go"] = False
+        new_player_info[CURRENT_PLAYER]["passed_go"] = False
 
     placements = grid_to_string_pos(new_player_info)
 
-    grid = new_player_info[current_player]["grid_pos"]
+    grid = new_player_info[CURRENT_PLAYER]["grid_pos"]
     grid_name = grid_info[grid]["name"]
     landed_on = center_board_text("")
 
@@ -498,7 +478,7 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], board_displa
             landed_on = center_board_text(f"You get {grid_name}!")
         elif grid_name == "JAIL":
             landed_on = center_board_text(f"GO TO {grid_name}!")
-        elif roll != 0:
+        else:
             landed_on = center_board_text(f"You landed on {grid_name}.")
 
     belongs_to = grid_info[grid]["belongs_to"]
@@ -507,12 +487,12 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], board_displa
     
     if grid_info[grid]["purchaseable"] and board_display_cycle == 1:  # Generates questions on purchaseable grids
         if belongs_to == NOBODY:
-            if new_player_info[current_player]["money"] >= grid_info[grid]["initial_cost"]:
+            if new_player_info[CURRENT_PLAYER]["money"] >= grid_info[grid]["initial_cost"]:
                 question = center_board_text("Would you like to buy this city?")
             else:
                 question = center_board_text("You cannot afford this city.")
-        elif belongs_to == current_player:
-            if new_player_info[current_player]["money"] >= grid_info[grid]["upgrade_cost"]:
+        elif belongs_to == CURRENT_PLAYER:
+            if new_player_info[CURRENT_PLAYER]["money"] >= grid_info[grid]["upgrade_cost"]:
                 question = center_board_text("Would you like to build a community?")
             else:
                 question = center_board_text("You cannot afford a community.")
@@ -644,14 +624,14 @@ def center_board_text(text: str) -> str:
     return new_string
 
 
-def get_positive_integer(question: str) -> int:
-    """Gets a positive integer.
+def get_positive_integer_max_5000(question: str) -> int:
+    """Gets a positive integer between 0 and 5000 (inclusive).
  
     Args:
         question: The question used to get the user to input the integer.
  
     Returns:
-        A positive integer.
+        A positive integer between 0 and 5000.
 
     Done by: Ethan Lam
     """
@@ -675,7 +655,6 @@ def print_rules() -> None:
     print()
     print(title)
     print("---------------------------------")
-    print("The rules have yet to be written.")
 
 
 def add_colour(text: str, colour: str, bold: bool) -> str:

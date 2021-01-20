@@ -4,9 +4,9 @@ from typing import List, Any
 import random
 
 
-FIRST_LOOP = True
 NOBODY = -1
 CURRENT_PLAYER = 0
+FIRST_LOOP = True
 
 def main():
     game_title = "MONOPOLY WITH A TWIST!"

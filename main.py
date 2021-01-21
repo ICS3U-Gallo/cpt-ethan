@@ -8,6 +8,7 @@ NOBODY = -1
 CURRENT_PLAYER = 0
 FIRST_LOOP = True
 
+
 def main():
     game_title = "MONOPOLY WITH A TWIST!"
     coloured_game_title = ""
@@ -53,7 +54,7 @@ def start_game() -> None:
     Done by: Ethan Lam
     """
     players = set_up_game()
-    if players == None:
+    if players is None:
         return
     
     grids = set_up_grids()
@@ -362,7 +363,6 @@ def set_up_game() -> List[Any]:
 
         player = {
             "money": starting_money,
-            "cities": [],
             "roll": 0,
             "grid_pos": 0,
             "name": player_name,
@@ -439,24 +439,17 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], board_displa
 
     name = new_player_info[CURRENT_PLAYER]["name"]
     roll = new_player_info[CURRENT_PLAYER]["roll"]
+    current_visuals = new_player_info[CURRENT_PLAYER]["char_representation"]
     if FIRST_LOOP:
-        roll_str = center_board_text(f"To begin, {name} must first roll.")
+        roll_str = center_board_text(f"{current_visuals} To begin, {name} must first roll.")
     elif board_display_cycle == 2:
-        roll_str = center_board_text(f"Now, {name} must roll.")
+        roll_str = center_board_text(f"{current_visuals} Now, {name} must roll.")
     else:
-        roll_str = center_board_text(f"{name} rolled a {roll}.")
+        roll_str = center_board_text(f"{current_visuals} {name} rolled a {roll}.")
     
     players_money = []
     for i in range(4):
         players_money.append(center_board_text(""))
-    
-    i = 0
-    while i < len(new_player_info):  # Creates strings for each player's money to display later
-        temp_name = new_player_info[i]["name"]
-        temp_money = new_player_info[i]["money"]
-        temp_visuals = new_player_info[i]["char_representation"]
-        players_money[i] = center_board_text(f"{temp_visuals} {temp_name}'s money: ${temp_money}")
-        i += 1
 
     add_200 = center_board_text("")
     if new_player_info[CURRENT_PLAYER]["passed_go"] and board_display_cycle == 1:
@@ -484,21 +477,40 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], board_displa
     belongs_to = grid_info[grid]["belongs_to"]
     worth = grid_info[grid]["worth"]
     question = center_board_text("")
+    starting_cost = grid_info[grid]["initial_cost"]
+    upgrade_cost = grid_info[grid]["upgrade_cost"]
+    number_of_communities = grid_info[grid]["communities"]
+
+    cost_amount = center_board_text("")
     
     if grid_info[grid]["purchaseable"] and board_display_cycle == 1:  # Generates questions on purchaseable grids
         if belongs_to == NOBODY:
-            if new_player_info[CURRENT_PLAYER]["money"] >= grid_info[grid]["initial_cost"]:
-                question = center_board_text("Would you like to buy this city?")
+            if new_player_info[CURRENT_PLAYER]["money"] >= starting_cost:
+                question = center_board_text(f"Do you want to buy this city?")
+                cost_amount = center_board_text(f"This costs ${starting_cost}")
             else:
                 question = center_board_text("You cannot afford this city.")
         elif belongs_to == CURRENT_PLAYER:
-            if new_player_info[CURRENT_PLAYER]["money"] >= grid_info[grid]["upgrade_cost"]:
-                question = center_board_text("Would you like to build a community?")
+            if new_player_info[CURRENT_PLAYER]["money"] >= upgrade_cost:
+                question = center_board_text(f"Do you want to build a community?")
+                cost_amount = center_board_text(f"This costs ${upgrade_cost}")
             else:
                 question = center_board_text("You cannot afford a community.")
         else:
             owner = new_player_info[belongs_to]["name"]
             question = center_board_text(f"You paid {owner} ${worth}")
+            cost = int(grid_info[grid]["worth"] * (1 + number_of_communities * 0.3))
+            new_player_info[CURRENT_PLAYER]["money"] -= cost
+
+            new_player_info[belongs_to]["money"] += cost
+
+    i = 0
+    while i < len(new_player_info):  # Creates strings for each player's money to display later
+        temp_name = new_player_info[i]["name"]
+        temp_money = new_player_info[i]["money"]
+        temp_visuals = new_player_info[i]["char_representation"]
+        players_money[i] = center_board_text(f"{temp_visuals} {temp_name}'s money: ${temp_money}")
+        i += 1
 
     board = f"""     GO   NA   NA   CC   NA   NA   CC   NA   NA   FP
    ---------------------------------------------------
@@ -509,7 +521,7 @@ NA |    |                                       |    | NA
 PM |    |{add_200}|    | NA
    ------{landed_on}------
 NA |    |{question}|    | NA
-   ------                                       ------
+   ------{cost_amount}------
 ER |    |                                       |    | CC
    ------                                       ------
 NA |    |                                       |    | PM
@@ -535,24 +547,28 @@ NA |    |                                       |    | NA
             board = board[:grid_info[i]["placement"]] + grid_info[i]["special_char"] * 2 + board[grid_info[i]["placement"] + 2:]
         i += 1
     
-    j = 0
-    while j < 2 * len(new_player_info):
+    change = True
+    while change is True:
+        change = False
         i = 0
         while i < len(board):
             if board[i] == chr(0):
                 board = board[:i] + new_player_info[0]["visual"] + board[i + 1:]
+                change = True
                 break
             elif board[i] == chr(1):
                 board = board[:i] + new_player_info[1]["visual"] + board[i + 1:]
+                change = True
                 break
             elif board[i] == chr(2):
                 board = board[:i] + new_player_info[2]["visual"] + board[i + 1:]
+                change = True
                 break
             elif board[i] == chr(3):
                 board = board[:i] + new_player_info[3]["visual"] + board[i + 1:]
+                change = True
                 break
             i += 1
-        j += 1
 
     change = True
     while change is True:

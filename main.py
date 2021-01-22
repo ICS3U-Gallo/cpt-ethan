@@ -5,9 +5,31 @@ import random
 
 
 NOBODY = -1
-CURRENT_PLAYER = 0
-FIRST_LOOP = True
+current_player = 0
+first_loop = True
 
+buy_city_questions = """Calculate: 28 + 24 * 2
+[A] 104
+[B] -20
+[C] 76
+[D] 52
+C
+
+Question: What is the largest animal in the world?
+[A] African forest elephant
+[B] Antarctic blue whale
+[C] Giant squid
+[D] Great white shark
+B
+
+Question: Which of the following is NOT true about Barack Obama?
+[A] He was elected in 2010
+[B] He was the 44th president of the United States
+[C] He was the first African American to be elected
+[D] He was born in 1961
+A"""
+
+chance_card_options = """"""
 
 def main():
     game_title = "MONOPOLY WITH A TWIST!"
@@ -49,7 +71,7 @@ def menu_options() -> None:
 
 
 def start_game() -> None:
-    """Starts the game
+    """Starts the game.
     
     Done by: Ethan Lam
     """
@@ -76,6 +98,45 @@ def start_game() -> None:
         roll_dice(players)
 
 
+def ask_trivia(questions: str) -> bool:
+    """Asks the current player a random trivia question.
+
+    Args:
+        Questions that can be asked along with the answers to verify.
+    
+    Returns:
+        True if the player answered correctly. False otherwise.
+    
+    Done by: Ethan Lam
+    """
+    questions = questions.split("\n\n")
+    question_asked = random.randint(0, len(questions) - 1)
+    question_asked = questions[question_asked].split("\n")
+    print()
+    print(question_asked[0])
+    print(question_asked[1])
+    print(question_asked[2])
+    print(question_asked[3])
+    print(question_asked[4])
+
+    valid_answers = "A B C D".split(" ")
+    correct_answer = question_asked[5]
+
+    while True:
+        choice = input("> ").upper()
+
+        if choice == correct_answer:
+            return True
+        elif choice not in valid_answers:
+            print("Invalid input. Please enter A, B, C, or D.")
+            print()
+        else:
+            return False
+
+    correct = check_answer(correct_answer, choice)
+    
+
+
 def set_up_grids() -> List[Any]:
     """A fixed initial set-up of the interactive grids on the board.
     
@@ -87,9 +148,9 @@ def set_up_grids() -> List[Any]:
     grids = []
     grid_names = ["GO", "Belleville", "North Bay", "Chance Card", "Grande Prairie", "Saint John",
     "Chance Card", "Sarnia", "Prince George", "Free Parking", "Peterborough", "Victoria", "Kamloops",
-    "Chance Card", "Pay Money", "Thunder Bay", "25 dollars", "St. John's", "JAIL", "50 dollars",
+    "Chance Card", "pay $20", "Thunder Bay", "25 dollars", "St. John's", "JAIL", "50 dollars",
     "Oshawa", "Kitchener", "Saskatoon", "Chance Card", "Vaughan", "Quebec City", "Mississauga",
-    "Cell", "Vancouver", "Ottawa", "75 dollars", "Calgary", "an extra roll", "Montreal", "Pay Money",
+    "Cell", "Vancouver", "Ottawa", "75 dollars", "Calgary", "an extra roll", "Montreal", "pay $50",
     "Toronto"]
     unpurchaseable_grids = [0, 3, 6, 9, 13, 14, 16, 18, 19, 23, 27, 30, 32, 34]
     grid_initial_costs = [-1, 50, 50, -1, 50, 75, -1, 75, 75, -1, 100, 100, 125, -1,
@@ -158,14 +219,15 @@ def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
     
     Done by: Ethan Lam
     """
-    global CURRENT_PLAYER
+    global current_player
+
     given_choice = False
     sentence = ""
     
-    name = player_info[CURRENT_PLAYER]["name"]
-    grid = player_info[CURRENT_PLAYER]["grid_pos"]
+    name = player_info[current_player]["name"]
+    grid = player_info[current_player]["grid_pos"]
     grid_name = grid_info[grid]["name"]
-    if grid_info[grid]["purchaseable"] and player_info[CURRENT_PLAYER]["money"] - grid_info[grid]["initial_cost"] >= 0 and player_info[CURRENT_PLAYER]["money"] - grid_info[grid]["upgrade_cost"] >= 0:
+    if grid_info[grid]["purchaseable"] and player_info[current_player]["money"] - grid_info[grid]["initial_cost"] >= 0 and player_info[current_player]["money"] - grid_info[grid]["upgrade_cost"] >= 0:
         if grid_info[grid]["belongs_to"] == NOBODY:
             given_choice = True
             while True:
@@ -175,8 +237,13 @@ def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
 
                 choice = input("> ")
                 if choice == "1":
-                    player_info[CURRENT_PLAYER]["money"] -= grid_info[grid]["initial_cost"]
-                    grid_info[grid]["belongs_to"] = CURRENT_PLAYER
+                    print("To purchase this city, you must first answer the following question correctly.")
+                    correct = ask_trivia(buy_city_questions)
+                    if correct == False:
+                        sentence = "Incorrect! - You do not get to buy this city."
+                        break
+                    player_info[current_player]["money"] -= grid_info[grid]["initial_cost"]
+                    grid_info[grid]["belongs_to"] = current_player
                     sentence = f"{name} has successfully purchased {grid_name}!"
                     break
 
@@ -185,7 +252,7 @@ def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
                 else:
                     print("Invalid option.")
 
-        elif grid_info[grid]["belongs_to"] == CURRENT_PLAYER:
+        elif grid_info[grid]["belongs_to"] == current_player:
             given_choice = True
             while True:
                 print()
@@ -194,7 +261,12 @@ def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
 
                 choice = input("> ")
                 if choice == "1":
-                    player_info[CURRENT_PLAYER]["money"] -= grid_info[grid]["upgrade_cost"]
+                    print("To purchase a community, you must first answer the following question correctly.")
+                    correct = ask_trivia(buy_city_questions)
+                    if correct == False:
+                        sentence = "Incorrect! - You do not get to buy a community."
+                        break
+                    player_info[current_player]["money"] -= grid_info[grid]["upgrade_cost"]
                     grid_info[grid]["communities"] += 1
                     sentence = f"{name} has added a community to {grid_name}!"
                     break
@@ -204,9 +276,9 @@ def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
                 else:
                     print("Invalid option.")
 
-    CURRENT_PLAYER += 1
-    if CURRENT_PLAYER >= len(player_info):
-        CURRENT_PLAYER -= len(player_info)
+    current_player += 1
+    if current_player >= len(player_info):
+        current_player -= len(player_info)
     return [given_choice, sentence]
 
 
@@ -228,7 +300,7 @@ def roll_dice(player_information: List[Any]) -> None:
     """
     
     print()
-    print("It is now " + player_information[CURRENT_PLAYER]["name"] + "'s turn.")
+    print("It is now " + player_information[current_player]["name"] + "'s turn.")
     print("You can choose to roll 1, 2, or 3 dice.")
     print("For every additional dice after 1, it costs $50 more.")
     while True:
@@ -242,8 +314,8 @@ def roll_dice(player_information: List[Any]) -> None:
                 print("Invalid choice - you must roll at least 1 dice, maximum of 3.")
                 print()
         
-        if player_information[CURRENT_PLAYER]["money"] - 50 * (number_of_rolls - 1) >= 0:
-            player_information[CURRENT_PLAYER]["money"] -= 50 * (number_of_rolls - 1)
+        if player_information[current_player]["money"] - 50 * (number_of_rolls - 1) >= 0:
+            player_information[current_player]["money"] -= 50 * (number_of_rolls - 1)
             break
         else:
             print("Not enough money!")
@@ -256,13 +328,13 @@ def roll_dice(player_information: List[Any]) -> None:
         roll += number
         j += 1
 
-    player_information[CURRENT_PLAYER]["roll"] = roll
+    player_information[current_player]["roll"] = roll
 
-    player_information[CURRENT_PLAYER]["grid_pos"] += roll
-    if player_information[CURRENT_PLAYER]["grid_pos"] >= 36:
-        player_information[CURRENT_PLAYER]["grid_pos"] -= 36
-        player_information[CURRENT_PLAYER]["money"] += 200
-        player_information[CURRENT_PLAYER]["passed_go"] = True
+    player_information[current_player]["grid_pos"] += roll
+    if player_information[current_player]["grid_pos"] >= 36:
+        player_information[current_player]["grid_pos"] -= 36
+        player_information[current_player]["money"] += 200
+        player_information[current_player]["passed_go"] = True
 
 
 def set_up_game() -> List[Any]:
@@ -434,13 +506,13 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], board_displa
 
     Done by: Ethan Lam
     """
-    global CURRENT_PLAYER
-    global FIRST_LOOP
+    global current_player
+    global first_loop
 
-    name = new_player_info[CURRENT_PLAYER]["name"]
-    roll = new_player_info[CURRENT_PLAYER]["roll"]
-    current_visuals = new_player_info[CURRENT_PLAYER]["char_representation"]
-    if FIRST_LOOP:
+    name = new_player_info[current_player]["name"]
+    roll = new_player_info[current_player]["roll"]
+    current_visuals = new_player_info[current_player]["char_representation"]
+    if first_loop:
         roll_str = center_board_text(f"{current_visuals} To begin, {name} must first roll.")
     elif board_display_cycle == 2:
         roll_str = center_board_text(f"{current_visuals} Now, {name} must roll.")
@@ -452,28 +524,16 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], board_displa
         players_money.append(center_board_text(""))
 
     add_200 = center_board_text("")
-    if new_player_info[CURRENT_PLAYER]["passed_go"] and board_display_cycle == 1:
+    if new_player_info[current_player]["passed_go"] and board_display_cycle == 1:
         add_200 = center_board_text(f"{name} passed GO! You got $200!")
-        new_player_info[CURRENT_PLAYER]["passed_go"] = False
+        new_player_info[current_player]["passed_go"] = False
 
     placements = grid_to_string_pos(new_player_info)
 
-    grid = new_player_info[CURRENT_PLAYER]["grid_pos"]
+    grid = new_player_info[current_player]["grid_pos"]
     grid_name = grid_info[grid]["name"]
     landed_on = center_board_text("")
-
-    if board_display_cycle == 1:
-        if grid_name == "Chance Card":
-            landed_on = center_board_text(f"You landed on a {grid_name}.")
-        elif grid_name == "Pay Money":
-            landed_on = center_board_text(f"You landed on a reserved area.")
-        elif grid == 16 or grid == 19 or grid == 30 or grid == 32:
-            landed_on = center_board_text(f"You get {grid_name}!")
-        elif grid_name == "JAIL":
-            landed_on = center_board_text(f"GO TO {grid_name}!")
-        else:
-            landed_on = center_board_text(f"You landed on {grid_name}.")
-
+    
     belongs_to = grid_info[grid]["belongs_to"]
     worth = grid_info[grid]["worth"]
     question = center_board_text("")
@@ -481,28 +541,44 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], board_displa
     upgrade_cost = grid_info[grid]["upgrade_cost"]
     number_of_communities = grid_info[grid]["communities"]
 
+    cost = int(grid_info[grid]["worth"] * (1 + number_of_communities * 0.3))
     cost_amount = center_board_text("")
-    
-    if grid_info[grid]["purchaseable"] and board_display_cycle == 1:  # Generates questions on purchaseable grids
-        if belongs_to == NOBODY:
-            if new_player_info[CURRENT_PLAYER]["money"] >= starting_cost:
-                question = center_board_text(f"Do you want to buy this city?")
-                cost_amount = center_board_text(f"This costs ${starting_cost}")
-            else:
-                question = center_board_text("You cannot afford this city.")
-        elif belongs_to == CURRENT_PLAYER:
-            if new_player_info[CURRENT_PLAYER]["money"] >= upgrade_cost:
-                question = center_board_text(f"Do you want to build a community?")
-                cost_amount = center_board_text(f"This costs ${upgrade_cost}")
-            else:
-                question = center_board_text("You cannot afford a community.")
-        else:
-            owner = new_player_info[belongs_to]["name"]
-            question = center_board_text(f"You paid {owner} ${worth}")
-            cost = int(grid_info[grid]["worth"] * (1 + number_of_communities * 0.3))
-            new_player_info[CURRENT_PLAYER]["money"] -= cost
 
-            new_player_info[belongs_to]["money"] += cost
+    if board_display_cycle == 1:
+        if grid_name == "Chance Card":
+            landed_on = center_board_text(f"You landed on a {grid_name}.")
+        elif grid_name == "pay $20" or grid_name == "pay $50":
+            landed_on = center_board_text("You landed on a reserved area.")
+            question = center_board_text(f"You must {grid_name} to the government.")
+            amount = int(grid_name[-2:])
+            new_player_info[current_player]["money"] -= amount
+        elif grid_name == "25 dollars" or grid_name == "50 dollars" or grid_name == "75 dollars" or grid_name == "an extra roll":
+            landed_on = center_board_text(f"You get {grid_name}!")
+        elif grid_name == "JAIL":
+            landed_on = center_board_text(f"GO TO {grid_name}!")
+        elif grid_name == "Cell":
+            landed_on = center_board_text(f"You are visiting the {grid_name}.")
+        else:  # Landing on a purchaseable grid.
+            landed_on = center_board_text(f"You landed on {grid_name}.")
+
+            if belongs_to == NOBODY:
+                if new_player_info[current_player]["money"] >= starting_cost:
+                    question = center_board_text(f"Do you want to buy this city?")
+                    cost_amount = center_board_text(f"This costs ${starting_cost}")
+                else:
+                    question = center_board_text("You cannot afford this city.")
+            elif belongs_to == current_player:
+                if new_player_info[current_player]["money"] >= upgrade_cost:
+                    question = center_board_text(f"Do you want to build a community?")
+                    cost_amount = center_board_text(f"This costs ${upgrade_cost}")
+                else:
+                    question = center_board_text("You cannot afford a community.")
+            else:
+                owner = new_player_info[belongs_to]["name"]
+                question = center_board_text(f"You paid {owner} ${cost}")
+                
+                new_player_info[current_player]["money"] -= cost
+                new_player_info[belongs_to]["money"] += cost
 
     i = 0
     while i < len(new_player_info):  # Creates strings for each player's money to display later
@@ -579,14 +655,15 @@ NA |    |                                       |    | NA
             while j < len(grid_info):
                 if board[i] == grid_info[j]["special_char"]:
                     colour = new_player_info[grid_info[j]["belongs_to"]]["colour"]
-                    string = add_background("NA", colour)
+                    number = str(grid_info[j]["communities"])
+                    string = add_background(f"{number}C", colour)
                     board = board[:i] + string + board[i + 2:]
                     change = True
                     break
                 j += 1
             i += 1
 
-    FIRST_LOOP = False
+    first_loop = False
     print()
     print(board)
 

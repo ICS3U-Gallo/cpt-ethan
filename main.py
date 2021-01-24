@@ -1292,7 +1292,7 @@ def get_chance_card(player_info: List[Any], grid_info: List[Any]) -> str:
     """
     sentence = ""
     while True:
-        random_choice = random.randint(6, 7)
+        random_choice = random.randint(1, 7)
         if random_choice == 1:
             if player_info[current_player]["previous_roll"] is not None:
                 sentence = guess_previous_roll(player_info)

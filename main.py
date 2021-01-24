@@ -3,28 +3,22 @@
 from typing import List, Any
 import random
 
-
 # Initializing constants
 NOBODY = -1
 DISPLAY_PLAYER_ROLL_RESULTS = 1
 DISPLAY_WHO_ROLLS_NEXT = 2
-
-# Initializing global variables
-current_player = 0
-previous_player = 0
-starting_game = True
-debug_code = True
-game_over = False
-extra_roll = False
-passed_go = False
+DAYS_IN_JAIL = 3
+MAX_COMMUNITIES_ALLOWED = 5
 
 # Initializing trivia questions
-buy_city_questions = """Calculate: 28 + 24 * 2
-[A] 104
-[B] -20
-[C] 76
-[D] 52
-C
+# Credit to https://thoughtcatalog.com/kelly-peacock/2020/04/multiple-choice-trivia-questions-and-answers/
+# and https://topessaywriter.org/multiple-choice-trivia-questions/ for TRIVIA QUESTIONS.
+TRIVIA_QUESTIONS = """Question: What is the name for the Jewish New Year?
+[A] Hanukkah
+[B] Yom Kippur
+[C] Kwanza
+[D] Rosh Hashanah
+D
 
 Question: What is the largest animal in the world?
 [A] African forest elephant
@@ -33,13 +27,239 @@ Question: What is the largest animal in the world?
 [D] Great white shark
 B
 
-Question: Which of the following is NOT true about Barack Obama?
-[A] He was elected in 2010
-[B] He was the 44th president of the United States
-[C] He was the first African American to be elected
-[D] He was born in 1961
-A"""
+Question: Who is often called the father of the computer?
+[A] Bill Gates
+[B] Bob Brown
+[C] Charles Babbage
+[D] LA Beast
+C
 
+Question: What year was the very first model of the iPhone released?
+[A] 1999
+[B] 2007
+[C] 1803
+[D] 2015
+B
+
+Question: Who was the first woman to win a Nobel Prize (in 1903)?
+[A] Jane Goodall
+[B] Albert Eistein
+[C] Marie Curie
+[D] Maria Mayer
+C
+
+Question: Which planet has the most gravity?
+[A] Jupiter
+[B] Neptune
+[C] Earth
+[D] Satern
+A
+
+Question: What or who is the Ford Mustang named after?
+[A] John K Ford
+[B] Nash Mustang
+[C] The first horse drawn carriage
+[D] A fighter plane from WWII
+D
+
+Question: Who discovered penicillin?
+[A] George Bush
+[B] Robert Newton
+[C] Kevin Penicillin
+[D] Alexander Fleming
+D
+
+Question: What is the symbol for Seaborgium?
+[A] Sb
+[B] Se
+[C] Sg
+[D] S
+C
+
+Question: What part of the atom has no electric charge?
+[A] Proton
+[B] Neutron
+[C] Electron
+[D] Both A & B
+B
+
+Question: What country won the very first FIFA World Cup in 1930?
+[A] Brazil
+[B] Uruguay
+[C] China
+[D] Peru
+B
+
+Question: What’s the shortcut for the “copy” function on most computers?
+[A] Ctrl c
+[B] Ctrl v
+[C] Copy-paste
+[D] Ctrl d
+A
+
+Question: What is the name of the man who launched eBay back in 1995?
+[A] Pierre Omidyar
+[B] Bill Niles
+[C] Pierre Hills
+[D] Steve Jobs
+A
+
+Question: Who was the only U.S. President to resign?
+[A] Herbert Hoover
+[B] Richard Nixon
+[C] George W. Bush
+[D] Barack Obama
+B
+
+Question: What was Superman’s birth name?
+[A] Ca-El
+[B] Kal-El
+[C] Clark Kent
+[D] Calell
+B
+
+Question: How many blue stripes are there on the U.S. flag?
+[A] 6
+[B] 7
+[C] 13
+[D] 0
+D
+
+Question: Which animal does NOT appear in the Chinese zodiac?
+[A] Dragon
+[B] Hummingbird
+[C] Rabbit
+[D] Dog
+B
+
+Question: Which country held the 2016 Summer Olympics?
+[A] China
+[B] Ireland
+[C] Brazil
+[D] Italy
+C
+
+Question: Which planet is the hottest?
+[A] Venus
+[B] Saturn
+[C] Mercury
+[D] Mars
+A
+
+Question: What is the rarest blood type?
+[A] O
+[B] A
+[C] B
+[D] AB-Negative
+D
+
+Question: Which U.S. state is known as the sunflower state?
+[A] Florida
+[B] California
+[C] Kansas
+[D] Maine
+C
+
+Question: How many bones are there in the human body?
+[A] 206
+[B] 205
+[C] 201
+[D] 209
+A
+
+Question: Fe is the chemical symbol for...
+[A] Zinc
+[B] Hydrogen
+[C] Fluorine
+[D] Iron
+D
+
+Question: What is Shakespeare's shortest tragedy?
+[A] Macbeth
+[B] Hamlet
+[C] Romeo & Juliet
+[D] Othello
+A
+
+Question: How many hearts does an octopus have?
+[A] 1
+[B] 2
+[C] 3
+[D] 4
+C
+
+Question: Who painted the Sistine Chapel ceiling?
+[A] Picasso
+[B] Da Vinci
+[C] Michelangelo
+[D] Van Gogh
+C
+
+Question: Which ocean is the largest?
+[A] Indian
+[B] Pacific
+[C] Atlantic
+[D] Arctic
+B
+
+Question: Which New York City building is the tallest?
+[A] Empire State Building
+[B] Bank of America Tower
+[C] One World Trade Center
+[D] Statue of Liberty
+C
+
+Question: Who painted the Mona Lisa?
+[A] Van Gogh
+[B] da Vinci
+[C] Picasso
+[D] Monet
+B
+
+Question: What is the most densely populated U.S. state?
+[A] Connecticut
+[B] New Jersey
+[C] Rhode Island
+[D] Maryland
+B
+
+Question: Albert Einstein was a scientist famous for his work on physics. Where was he born?
+[A] Germany
+[B] United States
+[C] Australia
+[D] France
+A
+
+Question: How fast can an ostrich run?
+[A] 25 km/hr (15 mph)
+[B] 50 km/hr (30 mph)
+[C] 65 km/hr (40 mph)
+[D] 80 km/hr (50 mph)
+C
+
+Question: How much of your vision do you lose if you go blind in one eye?
+[A] 50 percent
+[B] 10 percent
+[C] 35 percent
+[D] 20 percent
+D
+
+Question: What type of galaxy is the Milky Way galaxy?
+[A] Irregular
+[B] Elliptical
+[C] Spiral
+[D] None of the above
+C""".split("\n\n")
+
+VALID_TRIVIA_ANSWERS = "A B C D".split(" ")
+
+# Initializing global variables
+current_player = 0
+starting_game = True
+debug_code = False
+game_over = False
+extra_roll = False
+passed_go = False
 
 def main():
     display_title()
@@ -124,7 +344,7 @@ def play_game() -> None:
         roll_dice(players)
 
 
-def ask_trivia(questions: str) -> bool:
+def ask_trivia(questions: List[str]) -> bool:
     """Asks the current player a random trivia question.
 
     Args:
@@ -135,17 +355,12 @@ def ask_trivia(questions: str) -> bool:
     
     Done by: Ethan Lam
     """
-    questions = questions.split("\n\n")
-    question_asked = random.randint(0, len(questions) - 1)
-    question_asked = questions[question_asked].split("\n")
+    selected_question_number = random.randint(0, len(questions) - 1)
+    question_asked = questions[selected_question_number].split("\n")
     print()
-    print(question_asked[0])
-    print(question_asked[1])
-    print(question_asked[2])
-    print(question_asked[3])
-    print(question_asked[4])
+    for i in range(5):
+        print(question_asked[i])
 
-    valid_answers = "A B C D".split(" ")
     correct_answer = question_asked[5]
 
     while True:
@@ -153,7 +368,7 @@ def ask_trivia(questions: str) -> bool:
 
         if choice == correct_answer:
             return True
-        elif choice not in valid_answers:
+        elif choice not in VALID_TRIVIA_ANSWERS:
             print("Invalid input. Please enter A, B, C, or D.")
             print()
         else:
@@ -182,6 +397,8 @@ def set_up_grids() -> List[Any]:
     grid_starting_worths = [-1, 10, 10, -1, 10, 20, -1, 20, 20, -1, 30, 30, 40, -1,
     -1, 40, -1, 50, -1, -1, 50, 60, 60, -1, 60, 75, 75, -1, 100, 100, -1, 125, -1,
     130, -1, 150]
+    # chr 0-7, 14-26, 28-31, 127-131, 134-154, 156, 157 <- These special characters are not printable
+    # They are used purely for board string manipulation.
     grid_special_chars = [chr(5), chr(6), chr(7), chr(14), chr(15), chr(16), chr(17), chr(18),
     chr(19), chr(20), chr(21), chr(22), chr(23), chr(24), chr(25), chr(26), chr(28),
     chr(29), chr(30), chr(31), chr(127), chr(128), chr(129), chr(130), chr(131), chr(134),
@@ -250,8 +467,8 @@ def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
     name = player_info[current_player]["name"]
     grid = player_info[current_player]["grid_pos"]
     grid_name = grid_info[grid]["name"]
-    if grid_info[grid]["purchaseable"] and player_info[current_player]["money"] - grid_info[grid]["initial_cost"] >= 0 and player_info[current_player]["money"] - grid_info[grid]["upgrade_cost"] >= 0:
-        if grid_info[grid]["belongs_to"] == NOBODY:
+    if grid_info[grid]["purchaseable"]:
+        if grid_info[grid]["belongs_to"] == NOBODY and player_info[current_player]["money"] - grid_info[grid]["initial_cost"] >= 0:
             given_choice = True
             while True:
                 print()
@@ -260,22 +477,14 @@ def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
 
                 choice = input("> ")
                 if choice == "1":
-                    print("To purchase this city, you must first answer the following question correctly.")
-                    correct = ask_trivia(buy_city_questions)
-                    if correct == False:
-                        sentence = "Incorrect! - You do not get to buy this city."
-                        break
-                    player_info[current_player]["money"] -= grid_info[grid]["initial_cost"]
-                    grid_info[grid]["belongs_to"] = current_player
-                    sentence = f"{name} has successfully purchased {grid_name}!"
+                    sentence = purchase_city(player_info, grid_info)
                     break
-
                 elif choice == "2":
                     break
                 else:
                     print("Invalid option.")
 
-        elif grid_info[grid]["belongs_to"] == current_player:
+        elif grid_info[grid]["belongs_to"] == current_player and player_info[current_player]["money"] - grid_info[grid]["upgrade_cost"] >= 0 and grid_info[grid]["communities"] < MAX_COMMUNITIES_ALLOWED:
             given_choice = True
             while True:
                 print()
@@ -284,16 +493,8 @@ def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
 
                 choice = input("> ")
                 if choice == "1":
-                    print("To purchase a community, you must first answer the following question correctly.")
-                    correct = ask_trivia(buy_city_questions)
-                    if correct == False:
-                        sentence = "Incorrect! - You do not get to buy a community."
-                        break
-                    player_info[current_player]["money"] -= grid_info[grid]["upgrade_cost"]
-                    grid_info[grid]["communities"] += 1
-                    sentence = f"{name} has added a community to {grid_name}!"
+                    sentence = add_community(player_info, grid_info)
                     break
-                
                 elif choice == "2":
                     break
                 else:
@@ -303,13 +504,78 @@ def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
         given_choice = True
         sentence = get_chance_card(player_info)
 
-    while True:
+    advance_to_next_player(player_info)
+        
+    return [given_choice, sentence]
+
+def advance_to_next_player(player_info: List[Any]) -> None:
+    """Sets the current player to the next active player.
+       Skipping the backrupt or in jail players.
+
+    Args:
+        player_info: Information about each player.
+    
+    Done by: Ethan Lam
+    """
+    global current_player
+    while True:  # Goes to the next player, skipping those bankrupt or in jail
         current_player += 1
+        
         if current_player >= len(player_info):
             current_player -= len(player_info)
-        if player_info[current_player]["bankrupt"] == False:
-            break
-    return [given_choice, sentence]
+        
+        if player_info[current_player]["jail_sentence"] > 0:
+            player_info[current_player]["jail_sentence"] -= 1
+
+        if player_info[current_player]["bankrupt"] == False and player_info[current_player]["jail_sentence"] == 0:
+            return
+
+def purchase_city(player_info: List[Any], grid_info: List[Any]) -> str:
+    """The current player can purchase the city if the trivia question is successfully answered.
+
+    Args:
+        player_info: Information about each player.
+        grid_info: Information about each grid.
+    
+    Returns:
+        A sentence to be printed later about the result of the city purchase.
+    
+    Done by: Ethan Lam
+    """
+    name = player_info[current_player]["name"]
+    grid = player_info[current_player]["grid_pos"]
+    grid_name = grid_info[grid]["name"]
+    print("To purchase this city, you must first answer the following question correctly.")
+    correct = ask_trivia(TRIVIA_QUESTIONS)
+    if correct == False:
+        return "Incorrect! - You do not get to buy this city."
+    player_info[current_player]["money"] -= grid_info[grid]["initial_cost"]
+    grid_info[grid]["belongs_to"] = current_player
+    return f"{name} has successfully purchased {grid_name}!"
+
+
+def add_community(player_info: List[Any], grid_info: List[Any]) -> str:
+    """Adds a community to the city if the trivia question is successfully answered.
+
+    Args:
+        player_info: Information about each player.
+        grid_info: Information about each grid.
+    
+    Returns:
+        A sentence to be printed later about the result of the community purchase.
+    
+    Done by: Ethan Lam
+    """
+    name = player_info[current_player]["name"]
+    grid = player_info[current_player]["grid_pos"]
+    grid_name = grid_info[grid]["name"]
+    print("To purchase a community, you must first answer the following question correctly.")
+    correct = ask_trivia(TRIVIA_QUESTIONS)
+    if correct == False:
+        return "Incorrect! - You do not get to buy a community."
+    player_info[current_player]["money"] -= grid_info[grid]["upgrade_cost"]
+    grid_info[grid]["communities"] += 1
+    return f"{name} has added a community to {grid_name}!"
 
 
 def clear_screen() -> None:
@@ -320,8 +586,27 @@ def clear_screen() -> None:
     print("\n" * 100)
 
 
+def set_current_player_to_previous_player(player_info: List[Any]) -> None:
+    """Sets the current player to the previously active player.
+
+    Args:
+        player_info: Information about each player.
+    
+    Done by: Ethan Lam
+    """
+    global current_player
+    while True:
+        current_player -= 1
+        
+        if current_player < 0:
+            current_player = len(player_info) - 1
+
+        if player_info[current_player]["bankrupt"] == False and player_info[current_player]["jail_sentence"] == 0:
+            return
+
+
 def roll_dice(player_information: List[Any]) -> None:
-    """Changes information about the player based on their dice roll.
+    """Changes the grid position of the player based on their dice roll.
 
     Args:
         player_information: Information about each player.
@@ -331,20 +616,16 @@ def roll_dice(player_information: List[Any]) -> None:
     global current_player
     global passed_go
     global extra_roll
-    global previous_player
 
     word = "now"
-    previous_player = current_player - 1
-    if previous_player < 0:
-        previous_player = len(player_information) - 1
 
-    if extra_roll:
+    if extra_roll:  # Checks if the previous player landed on the extra roll grid.
         extra_roll = False
-        current_player = previous_player
+        set_current_player_to_previous_player(player_information)
         word = "still"
 
     print()
-    print(f"It is {word} " + player_information[current_player]["name"] + "'s turn.")
+    print(f"It is {word} " + player_information[current_player]["visual"] + " " + player_information[current_player]["name"] + "'s turn.")
     print("You can choose to roll 1, 2, or 3 dice.")
     print("For every additional dice after 1, it costs $50 more.")
     while True:
@@ -366,11 +647,11 @@ def roll_dice(player_information: List[Any]) -> None:
             print()
     
     roll = 0
-    j = 0
-    while j < number_of_rolls:
+    i = 0
+    while i < number_of_rolls:
         number = random.randint(1, 6)
         roll += number
-        j += 1
+        i += 1
 
     if debug_code:
         roll = int(input("Type in the number you want rolled: "))
@@ -492,7 +773,8 @@ def set_up_game() -> List[Any]:
             "visual": player_final,
             "char_representation": special_character,
             "bankrupt": False,
-            "previous_roll": None
+            "previous_roll": None,
+            "jail_sentence": 0
         }
         players.append(player)
         i += 1
@@ -568,6 +850,8 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], center_of_bo
     current_visuals = new_player_info[current_player]["char_representation"]
     if starting_game:
         roll_str = center_board_text(f"{current_visuals} To begin, {name} must first roll.")
+    # elif new_player_info[current_player]["jail_sentence"] > 0:
+    #     roll_str = center_board_text("")
     elif center_of_board_display == DISPLAY_WHO_ROLLS_NEXT:
         roll_str = center_board_text(f"{current_visuals} Now, {name} must roll.")
     else:
@@ -597,8 +881,6 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], center_of_bo
     bankrupt = chr(157) + 7 * " "
     winner = chr(156) + 5 * " "
 
-    player_removed = False
-
     if center_of_board_display == DISPLAY_PLAYER_ROLL_RESULTS:
         if grid_name == "Chance Card":
             landed_on = center_board_text(f"You landed on a {grid_name}.")
@@ -618,8 +900,13 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], center_of_bo
             extra_roll = True
         elif grid_name == "JAIL":
             landed_on = center_board_text(f"GO TO {grid_name}!")
+            new_player_info[current_player]["jail_sentence"] = DAYS_IN_JAIL
+            new_player_info[current_player]["grid_pos"] += 9
         elif grid_name == "Cell":
-            landed_on = center_board_text(f"You are visiting the {grid_name}.")
+            if new_player_info[current_player]["jail_sentence"] == 0:
+                landed_on = center_board_text(f"You are visiting the {grid_name}.")
+            else:
+                landed_on = center_board_text("YOU ARE IN JAIL")
         elif grid_name == "Free Parking" or grid_name == "GO":
             landed_on = center_board_text(f"You landed on {grid_name}.")
         else:  # Landing on a purchaseable grid.
@@ -632,50 +919,39 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], center_of_bo
                 else:
                     question = center_board_text("You cannot afford this city.")
             elif belongs_to == current_player:
-                if new_player_info[current_player]["money"] >= upgrade_cost:
+                if new_player_info[current_player]["money"] >= upgrade_cost and number_of_communities < MAX_COMMUNITIES_ALLOWED:
                     question = center_board_text("Do you want to build a community?")
                     cost_amount = center_board_text(f"This costs ${upgrade_cost}")
+                elif number_of_communities == MAX_COMMUNITIES_ALLOWED:
+                    question = center_board_text("You have bought all the available")
+                    cost_amount = center_board_text("communities for this city.")
                 else:
                     question = center_board_text("You cannot afford a community.")
-            else:
+            else:  # Already purchased by someone else
                 owner = new_player_info[belongs_to]["name"]
                 question = center_board_text(f"You paid {owner} ${cost}")
                 
                 new_player_info[current_player]["money"] -= cost
                 new_player_info[belongs_to]["money"] += cost
 
-        if new_player_info[current_player]["money"] < 0 and new_player_info[current_player]["bankrupt"] == False:
+        if new_player_info[current_player]["money"] < 0: # and new_player_info[current_player]["bankrupt"] == False
             bankrupt_text = center_board_text(f"{name} has gone {bankrupt}")
             new_player_info[current_player]["bankrupt"] = True
-            player_removed = True
             remove_bankrupt_player_grids(grid_info, current_player)
 
             j = 0
-            temp_count = 0
+            players_remaining = 0
             winner_name = ""
             while j < len(new_player_info):
                 if new_player_info[j]["bankrupt"] == False:
                     winner_name = new_player_info[j]["name"]
-                    temp_count += 1
+                    players_remaining += 1
                 j += 1
-            if temp_count == 1:
+            if players_remaining == 1:
                 winner_text = center_board_text(f"{winner_name} is the {winner}")
                 game_over = True
     
-    players_money = []
-    for i in range(4):
-        players_money.append(center_board_text(""))
-
-    i = 0
-    while i < len(new_player_info):  # Creates strings for each player's money to display later
-        temp_name = new_player_info[i]["name"]
-        temp_money = new_player_info[i]["money"]
-        temp_visuals = new_player_info[i]["char_representation"]
-        players_money[i] = center_board_text(f"{temp_visuals} {temp_name}'s money: ${temp_money}")
-        if new_player_info[i]["bankrupt"]:
-            players_money[i] = center_board_text(f"{temp_visuals} {temp_name}: BANKRUPT")
-
-        i += 1
+    players_money = create_players_money_text(new_player_info)
 
     board = f"""     GO   NA   NA   CC   NA   NA   CC   NA   NA   FP
    ---------------------------------------------------
@@ -701,21 +977,47 @@ NA |    |                                       |    | NA
    ---------------------------------------------------
      CL   NA   NA   NA   CC   NA   NA   NA   50   JL"""
     
-    placements = grid_to_string_pos(new_player_info)
-    i = 0
-    while i < len(placements):
-        board = board[:placements[i]] + new_player_info[i]["char_representation"] + board[placements[i] + 1:]
-        i += 1
-
-    if player_removed:
-        new_player_info[current_player]["char_representation"] = " "
-
+    # Marking cities on the board to indicate that it is already owned by a player.
     i = 0
     while i < len(grid_info):
         if grid_info[i]["belongs_to"] != NOBODY:
             board = board[:grid_info[i]["placement"]] + grid_info[i]["special_char"] * 2 + board[grid_info[i]["placement"] + 2:]
         i += 1
+
+    # Inserts players into the correct locations on the board.
+    player_placements = grid_to_string_pos(new_player_info)
+    i = 0
+    while i < len(player_placements):
+        board = board[:player_placements[i]] + new_player_info[i]["char_representation"] + board[player_placements[i] + 1:]
+        i += 1
+
+    # Makes the bankrupt player invisible for future board displays.
+    if new_player_info[current_player]["bankrupt"]:
+        new_player_info[current_player]["char_representation"] = " "
     
+    board = finalize_board(grid_info, new_player_info, board)
+
+    starting_game = False
+    print()
+    print(board)
+
+
+def finalize_board(grid_info: List[Any], player_info: List[Any], board: str) -> str:
+    """Finalizes the board display.
+       - Replaces players special characters with visible player pieces.
+       - Replaces grids special characters with a string indicating the number of communities and the owner.
+       - Replaces special fields with special character highlights (bankruptcy/winner text).
+
+    Args:
+        grid_info: Information about each grid.
+        player_info: Information about each player.
+        board: The board string being modified.
+
+    Returns:
+        The complete board string ready for display.
+    
+    Done by: Ethan Lam
+    """
     bankrupt = add_colour("BANKRUPT", "red", True)
     winner = add_colour("WINNER", "green", True)
     change = True
@@ -724,19 +1026,19 @@ NA |    |                                       |    | NA
         i = 0
         while i < len(board):
             if board[i] == chr(0):
-                board = board[:i] + new_player_info[0]["visual"] + board[i + 1:]
+                board = board[:i] + player_info[0]["visual"] + board[i + 1:]
                 change = True
                 break
             elif board[i] == chr(1):
-                board = board[:i] + new_player_info[1]["visual"] + board[i + 1:]
+                board = board[:i] + player_info[1]["visual"] + board[i + 1:]
                 change = True
                 break
             elif board[i] == chr(2):
-                board = board[:i] + new_player_info[2]["visual"] + board[i + 1:]
+                board = board[:i] + player_info[2]["visual"] + board[i + 1:]
                 change = True
                 break
             elif board[i] == chr(3):
-                board = board[:i] + new_player_info[3]["visual"] + board[i + 1:]
+                board = board[:i] + player_info[3]["visual"] + board[i + 1:]
                 change = True
                 break
             elif board[i] == chr(157):
@@ -749,7 +1051,7 @@ NA |    |                                       |    | NA
             j = 0
             while j < len(grid_info):
                 if board[i] == grid_info[j]["special_char"]:
-                    colour = new_player_info[grid_info[j]["belongs_to"]]["colour"]
+                    colour = player_info[grid_info[j]["belongs_to"]]["colour"]
                     number = str(grid_info[j]["communities"])
                     string = add_background(f"{number}C", colour)
                     board = board[:i] + string + board[i + 2:]
@@ -757,10 +1059,38 @@ NA |    |                                       |    | NA
                     break
                 j += 1
             i += 1
+        
+    return board
 
-    starting_game = False
-    print()
-    print(board)
+
+def create_players_money_text(player_info: List[Any]) -> List[str]:
+    """Builds the strings in the board related to each player's money.
+
+    Args:
+        player_info: Information about each player.
+
+    Returns:
+        [players_money[0], players_money[1], players_money[2], players_money[3]]
+
+    Done by: Ethan Lam
+    """
+    player_money_text = []
+    for i in range(4):
+        player_money_text.append(center_board_text(""))
+
+    i = 0
+    while i < len(player_info):  # Creates strings for each player's money to display later
+        temp_name = player_info[i]["name"]
+        temp_money = player_info[i]["money"]
+        temp_visuals = player_info[i]["char_representation"]
+        if player_info[i]["bankrupt"] == False:
+            player_money_text[i] = (center_board_text(f"{temp_visuals} {temp_name}'s money: ${temp_money}"))
+        else:
+            player_money_text[i] = (center_board_text(f"{temp_visuals} {temp_name}: BANKRUPT"))
+
+        i += 1
+    
+    return player_money_text
 
 
 def remove_bankrupt_player_grids(grid_info: List[Any], bankrupt_player: int) -> None:
@@ -937,7 +1267,7 @@ def get_chance_card(player_info: List[Any]) -> str:
     """
     sentence = ""
     while True:
-        random_choice = random.randint(1, 3)
+        random_choice = random.randint(1, 5)
         if random_choice == 1:
             if player_info[current_player]["previous_roll"] is not None:
                 sentence = guess_previous_roll(player_info)
@@ -950,14 +1280,70 @@ def get_chance_card(player_info: List[Any]) -> str:
             sentence = grant_50_dollars(player_info)
             break
         elif random_choice == 4:
-            sentence = no_question_property()
+            sentence = sorting_minigame(player_info)
+            break
+        elif random_choice == 5:
+            sentence = password_minigame(player_info)
             break
 
     return sentence
 
 
+def password_minigame(player_info: List[Any]) -> str:
+    """Prompts the user to decode a password; negative consequences otherwise.
+
+    Args:
+        player_info: Information about each player.
+    
+    Returns:
+        A sentence to be printed in the next board display.
+    
+    Done by: Ethan Lam
+    """
+    random_number = random.randint(0, 999999)
+    decoded_number = password_decoder(random_number)
+    print()
+    print("You must decode a password immediately or you will lose 20% of your money.")
+    print("You are given the following decoding table:")
+    print("0 = a, 1 = b, 2 = c,... 9 = j")
+    print(f"Your number is {random_number}")
+
+    name = player_info[current_player]["name"]
+    answer = input("> ")
+    if answer == decoded_number:
+        return f"{name}, good work! You have successfully decoded the password!"
+    else:
+        money_lost = int(player_info[current_player]["money"] * 0.2)
+        player_info[current_player]["money"] -= money_lost
+        return f"{name}, INCORRECT! You have lost ${money_lost}."
+
+
+def password_decoder(integer: int) -> str:
+    """Converts numbers into an alpha-password.
+
+    Args:
+        integer: Any integer.
+    
+    Returns:
+        The password.
+    
+    Done by: Ethan Lam
+    """
+    new_string = ""
+    integer_string = str(integer)
+    decoding_table_strings = "a b c d e f g h i j".split(" ")
+    i = 0
+    while i < len(integer_string):
+        reference = int(integer_string[i])
+        new_string += decoding_table_strings[reference]
+        i += 1
+    return new_string
+
+
 def bet_trivia(player_info: List[Any]) -> str:
     """Asks the user how much they want to bet on getting a trivia question correct.
+       If the user is correct, they will double their bet amount.
+       If not, they lose it.
 
     Args:
         player_info: Information about each player.
@@ -991,7 +1377,7 @@ def bet_trivia(player_info: List[Any]) -> str:
             print("Enter another amount.")
             print()
 
-    correct = ask_trivia(buy_city_questions)
+    correct = ask_trivia(TRIVIA_QUESTIONS)
     name = player_info[current_player]["name"]
     if correct:
         player_info[current_player]["money"] += bet_amount * 2
@@ -1034,11 +1420,78 @@ def guess_previous_roll(player_info: List[Any]) -> str:
         return f"{name}, YOUR ANSWER WAS INCORRECT! Better luck next time!"
 
 
-def no_question_property():
-    return "no question property."
+def sorting_minigame(player_info: List[Any]) -> str:
+    """Generates a random number with a random number of digits.
+       Random number is displayed to the user and the user is prompted to sort it numerically.
+       If successful, user gets $100.
+
+    Args:
+        player_info: Information about each player.
+
+    Returns:
+        A sentence to be printed in the next board display.
+    
+    Done by: Ethan Lam
+    """
+    digits = random.randint(10, 20)
+    number_string = str(random.randint(10 ** digits, 10 ** (digits + 1) - 1))
+    sorted_string = sort_numerical_string(number_string)
+
+    money = digits * 10
+    print()
+    print(f"In order to get ${money}, you must sort the following number in numerical order.")
+    print(f"Your number is {number_string}")
+
+    answer = input("> ")
+
+    name = player_info[current_player]["name"]
+    if answer == sorted_string:
+        player_info[current_player]["money"] += money
+        return f"{name}, CONGRATULATIONS! That is correct. You get ${money}."
+    else:
+        return f"{name}, INCORRECT! Unfortunately, you do not get ${money}."
 
 
-def grant_50_dollars(player_info: List[Any]):
+def sort_numerical_string(string: str) -> str:
+    """Sorts the numerical string into numerical order.
+
+    Args:
+        string: The string being sorted.
+    
+    Returns:
+        The sorted string.
+
+    Done by: Ethan Lam
+    """
+    new_string = ""
+    numerical_list = []
+
+    i = 0
+    while i < len(string):
+        numerical_list.append(int(string[i]))
+        i += 1
+
+    numerical_list.sort()
+
+    i = 0
+    while i < len(numerical_list):
+        new_string += str(numerical_list[i])
+        i += 1
+
+    return new_string
+
+
+def grant_50_dollars(player_info: List[Any]) -> str:
+    """Gives the current player 50 dollars.
+
+    Args:
+        player_info: The player's information to be updated.
+    
+    Returns:
+        A sentence to be printed in the next board display.
+
+    Done by: Ethan Lam
+    """
     player_info[current_player]["money"] += 50
     name = player_info[current_player]["name"]
     return f"{name}, You were rewarded with $50!"

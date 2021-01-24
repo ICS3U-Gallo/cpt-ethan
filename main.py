@@ -332,8 +332,6 @@ def play_game() -> None:
         if game_over:
             return
         follow_up_info = follow_up(players, grids)
-        if game_over:
-            return
         got_options = follow_up_info[0]
         if got_options:
             center_of_board_display = DISPLAY_WHO_ROLLS_NEXT
@@ -507,6 +505,7 @@ def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
     advance_to_next_player(player_info)
         
     return [given_choice, sentence]
+
 
 def advance_to_next_player(player_info: List[Any]) -> None:
     """Sets the current player to the next active player.
@@ -953,29 +952,29 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], center_of_bo
     
     players_money = create_players_money_text(new_player_info)
 
-    board = f"""     GO   NA   NA   CC   NA   NA   CC   NA   NA   FP
+    board = f"""     GO   NP   NP   CC   NP   NP   CC   NP   NP   FP
    ---------------------------------------------------
    |    |    |    |    |    |    |    |    |    |    |
    ---------------------------------------------------
-NA |    |                                       |    | NA
+NP |    |                                       |    | NP
    ------{roll_str}------
-PM |    |{add_200}|    | NA
+PM |    |{add_200}|    | NP
    ------{landed_on}------
-NA |    |{question}|    | NA
+NP |    |{question}|    | NP
    ------{cost_amount}------
 ER |    |                                       |    | CC
    ------{bankrupt_text}------
-NA |    |{winner_text}|    | PM
+NP |    |{winner_text}|    | PM
    ------                                       ------
-75 |    |{players_money[0]}|    | NA
+75 |    |{players_money[0]}|    | NP
    ------{players_money[1]}------
-NA |    |{players_money[2]}|    | 25
+NP |    |{players_money[2]}|    | 25
    ------{players_money[3]}------
-NA |    |                                       |    | NA
+NP |    |                                       |    | NP
    ---------------------------------------------------
    |    |    |    |    |    |    |    |    |    |    |
    ---------------------------------------------------
-     CL   NA   NA   NA   CC   NA   NA   NA   50   JL"""
+     CL   NP   NP   NP   CC   NP   NP   NP   50   JL"""
     
     # Marking cities on the board to indicate that it is already owned by a player.
     i = 0
@@ -1187,10 +1186,42 @@ def print_rules() -> None:
     
     Done by: Ethan Lam
     """
-    title = add_colour("      MONOPOLY WITH A TWIST      ", "red", True)
+    title = add_colour("              MONOPOLY WITH A TWIST      ", "red", True)
     print()
     print(title)
-    print("---------------------------------")
+    print("---------------------------------------------------")
+    print("Number of players: 2 - 4")
+    print()
+    print("Legend:")
+    print("GO -> Collect $200")
+    print("NP -> City not yet purchased")
+    print("CC -> Random chance card")
+    print("FP -> Free Parking")
+    print("PM -> Pay money to government")
+    print("25 -> Recieve $25")
+    print("50 -> Recieve $50")
+    print("75 -> Recieve $75")
+    print("JL -> GO TO JAIL")
+    print("CL -> Jail cell")
+    print("ER -> Extra roll")
+    print()
+    print("Gameplay: Similar to Monopoly.")
+    print("""Monopoly With A Twist is a virtual
+yet visual board game similar to Monopoly where 
+players try to obtain as many properties as
+possible. However, instead of claiming properties, 
+the objective is to claim and build as many
+cities as possible all the while trying not to go
+bankrupt from having to pay too much tax to other 
+players. Many features, including colours, 
+gamepieces, and names are customizable. The 
+challenge with this game is that there are 
+puzzles and problems to solve before the player 
+is allowed to purchase cities. Other additions 
+such as a wide variety of luck cards and the 
+ability to choose how many dice you want to roll 
+all make this game very unique.""")
+    print()
 
 
 def add_colour(text: str, colour: str, bold: bool) -> str:

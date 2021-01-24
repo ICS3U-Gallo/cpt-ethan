@@ -202,13 +202,6 @@ Question: Which ocean is the largest?
 [D] Arctic
 B
 
-Question: Which New York City building is the tallest?
-[A] Empire State Building
-[B] Bank of America Tower
-[C] One World Trade Center
-[D] Statue of Liberty
-C
-
 Question: Who painted the Mona Lisa?
 [A] Van Gogh
 [B] da Vinci
@@ -383,10 +376,10 @@ def set_up_grids() -> List[Any]:
     """
     grids = []
     grid_names = ["GO", "Belleville", "North Bay", "Chance Card", "Grande Prairie", "Saint John",
-    "Chance Card", "Sarnia", "Prince George", "Free Parking", "Peterborough", "Victoria", "Kamloops",
-    "Chance Card", "pay $20", "Thunder Bay", "$25", "St. John's", "JAIL", "$50",
+    "Chance Card", "Sarnia", "Prince George", "Cell", "Peterborough", "Victoria", "Kamloops",
+    "Chance Card", "pay $20", "Thunder Bay", "$25", "St. John's", "Free Parking", "$50",
     "Oshawa", "Kitchener", "Saskatoon", "Chance Card", "Vaughan", "Quebec City", "Mississauga",
-    "Cell", "Vancouver", "Ottawa", "$75", "Calgary", "an extra roll", "Montreal", "pay $50",
+    "JAIL", "Vancouver", "Ottawa", "$75", "Calgary", "an extra roll", "Montreal", "pay $50",
     "Toronto"]
     unpurchaseable_grids = [0, 3, 6, 9, 13, 14, 16, 18, 19, 23, 27, 30, 32, 34]
     grid_initial_costs = [-1, 50, 50, -1, 50, 75, -1, 75, 75, -1, 100, 100, 125, -1,
@@ -500,7 +493,7 @@ def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
 
     elif grid_name == "Chance Card":
         given_choice = True
-        sentence = get_chance_card(player_info)
+        sentence = get_chance_card(player_info, grid_info)
 
     advance_to_next_player(player_info)
         
@@ -872,7 +865,7 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], center_of_bo
     landed_on = center_board_text("")
     question = center_board_text("")
 
-    cost = int(grid_info[grid]["worth"] * (1 + number_of_communities * 0.3))
+    cost = int(grid_info[grid]["worth"] * (1 + number_of_communities * 3))
     cost_amount = center_board_text("")
 
     bankrupt_text = center_board_text("")
@@ -900,7 +893,7 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], center_of_bo
         elif grid_name == "JAIL":
             landed_on = center_board_text(f"GO TO {grid_name}!")
             new_player_info[current_player]["jail_sentence"] = DAYS_IN_JAIL
-            new_player_info[current_player]["grid_pos"] += 9
+            new_player_info[current_player]["grid_pos"] -= 18
         elif grid_name == "Cell":
             if new_player_info[current_player]["jail_sentence"] == 0:
                 landed_on = center_board_text(f"You are visiting the {grid_name}.")
@@ -952,7 +945,7 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], center_of_bo
     
     players_money = create_players_money_text(new_player_info)
 
-    board = f"""     GO   NP   NP   CC   NP   NP   CC   NP   NP   FP
+    board = f"""     GO   NP   NP   CC   NP   NP   CC   NP   NP   CL
    ---------------------------------------------------
    |    |    |    |    |    |    |    |    |    |    |
    ---------------------------------------------------
@@ -974,7 +967,7 @@ NP |    |                                       |    | NP
    ---------------------------------------------------
    |    |    |    |    |    |    |    |    |    |    |
    ---------------------------------------------------
-     CL   NP   NP   NP   CC   NP   NP   NP   50   JL"""
+     JL   NP   NP   NP   CC   NP   NP   NP   50   FP"""
     
     # Marking cities on the board to indicate that it is already owned by a player.
     i = 0
@@ -1285,11 +1278,12 @@ def add_background(text: str, colour: str) -> str:
     return respective_codes[i] + text + default
 
 
-def get_chance_card(player_info: List[Any]) -> str:
+def get_chance_card(player_info: List[Any], grid_info: List[Any]) -> str:
     """Randomly chooses a chance card for the current player.
 
     Args:
         player_info: Information about each player.
+        grid_info: Information about each grid.
 
     Returns:
         A sentence to be printed with the next board display.
@@ -1298,7 +1292,7 @@ def get_chance_card(player_info: List[Any]) -> str:
     """
     sentence = ""
     while True:
-        random_choice = random.randint(1, 5)
+        random_choice = random.randint(6, 7)
         if random_choice == 1:
             if player_info[current_player]["previous_roll"] is not None:
                 sentence = guess_previous_roll(player_info)
@@ -1316,8 +1310,55 @@ def get_chance_card(player_info: List[Any]) -> str:
         elif random_choice == 5:
             sentence = password_minigame(player_info)
             break
-
+        elif random_choice == 6:
+            sentence = donate_money(player_info)
+            break
+        elif random_choice == 7:
+            sentence = pay_city_taxes(player_info, grid_info)
+            break
     return sentence
+
+
+def pay_city_taxes(player_info: List[Any], grid_info: List[Any]) -> str:
+    """Takes money from the user based on the number of cities they own.
+
+    Args:
+        player_info: Information about each player.
+        grid_info: Information about each grid.
+    
+    Returns:
+        A sentence to be printed in the next board display.
+    
+    Done by: Ethan Lam
+    """
+    number_of_cities_owned = 0
+    i = 0
+    while i < len(grid_info):
+        if grid_info[i]["belongs_to"] == current_player:
+            number_of_cities_owned += 1
+        i += 1
+    
+    name = player_info[current_player]["name"]
+    percentage = number_of_cities_owned * 0.02
+
+    player_info[current_player]["money"] = int(player_info[current_player]["money"] * (1 - percentage))
+    return f"{name}, You paid 2% taxes for every city you own."
+
+
+def donate_money(player_info: List[Any]) -> str:
+    """Makes the user donate money.
+
+    Args:
+        player_info: Information about each player.
+    
+    Returns:
+        A sentence to be printed in the next board display.
+    
+    Done by: Ethan Lam
+    """
+    player_info[current_player]["money"] = int(player_info[current_player]["money"] * 0.95)
+    name = player_info[current_player]["name"]
+    return f"{name}, You donated 5% of your money to World Health Organization!"
 
 
 def password_minigame(player_info: List[Any]) -> str:

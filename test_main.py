@@ -4,6 +4,7 @@ from main import center_board_text
 from main import sort_numerical_string
 from main import password_decoder
 
+
 def test_add_background():
     """Done by: Ethan Lam"""
     assert add_background("hi", "red") == "\033[0;37;41mhi\033[0;0;0m"
@@ -66,4 +67,3 @@ def test_password_decoder():
     assert password_decoder(100) == "baa"
     assert password_decoder(5555555555) == "ffffffffff"
     assert password_decoder(90) == "ja"
-

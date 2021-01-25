@@ -100,8 +100,7 @@ Question: The smallest of the FORMED elements of the blood are the:
 [D] erythrocytes
 C
 
-Question: When looking at the cross section of the human tibia, one finds the
-RED marrow in the:
+Question: When looking at the cross section of the human tibia, one finds the RED marrow in the:
 [A] medullary cavity
 [B] cancellous bone
 [C] periosteum
@@ -136,8 +135,7 @@ Question: Digestion of carbohydrates begins where?
 [D] stomach
 C
 
-Question: Digestion of PROTEINS begins in which of the following human
-organs?
+Question: Digestion of PROTEINS begins in which of the following human organs?
 [A] small intestines
 [B] colon
 [C] mouth
@@ -158,8 +156,7 @@ Question: A virus must do what to reproduce?
 [D] conjugate 
 C
 
-Question: A heart with a single atrium and single ventricle is a characteristic of
-adult:
+Question: A heart with a single atrium and single ventricle is a characteristic of adult:
 [A] amphibians
 [B] arthropods
 [C] birds
@@ -180,16 +177,14 @@ Question: Cell membranes are composed of:
 [D] lysosomes
 A
 
-Question: Which of the following blood types is referred to as the universal
-RECIPIENT?
+Question: Which of the following blood types is referred to as the universal RECIPIENT?
 [A] A
 [B] AB
 [C] O
 [D] B
 B
 
-Question: Approximately how many different types of cells make up the human
-body?
+Question: Approximately how many different types of cells make up the human body?
 [A] 200
 [B] 100
 [C] 80
@@ -224,8 +219,7 @@ Question: Most of the carbon dioxide picked up by the blood in the tissues:
 [D] diffuses into the alveoli
 A
 
-Question: Which of the following scientific terms is used to describe the loss of
-water vapor by plants. Is it:
+Question: Which of the following scientific terms is used to describe the loss of water vapor by plants. Is it:
 [A] digestion
 [B] respiration
 [C] adsorption

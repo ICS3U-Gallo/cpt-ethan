@@ -20,6 +20,7 @@ game_over = False
 extra_roll = False
 passed_go = False
 
+
 def main():
     display_title()
     start_menu_options()
@@ -49,7 +50,7 @@ def display_title() -> None:
 
 def start_menu_options() -> None:
     """Displays available menu options for the player and handles choice.
-    
+
     Done by: Ethan Lam
     """
     while True:
@@ -71,13 +72,13 @@ def start_menu_options() -> None:
 
 def play_game() -> None:
     """Starts the game and continues until all players but one is bankrupt.
-    
+
     Done by: Ethan Lam
     """
     players = set_up_game()
     if players is None:
         return
-    
+
     grids = set_up_grids()
 
     center_of_board_display = DISPLAY_WHO_ROLLS_NEXT
@@ -106,10 +107,10 @@ def ask_trivia(questions: List[str]) -> bool:
 
     Args:
         Questions that can be asked along with the answers to verify.
-    
+
     Returns:
         True if the player answered correctly. False otherwise.
-    
+
     Done by: Ethan Lam
     """
     selected_question_number = random.randint(0, len(questions) - 1)
@@ -134,35 +135,35 @@ def ask_trivia(questions: List[str]) -> bool:
 
 def set_up_grids() -> List[Any]:
     """A fixed initial set-up of the interactive grids on the board.
-    
+
     Returns:
         The interactive grid set-up, each with unique properties.
-    
+
     Done by: Ethan Lam
     """
     grids = []
     grid_names = ["GO", "Belleville", "North Bay", "Chance Card", "Grande Prairie", "Saint John",
-    "Chance Card", "Sarnia", "Prince George", "Cell", "Peterborough", "Victoria", "Kamloops",
-    "Chance Card", "pay $20", "Thunder Bay", "$25", "St. John's", "Free Parking", "$50",
-    "Oshawa", "Kitchener", "Saskatoon", "Chance Card", "Vaughan", "Quebec City", "Mississauga",
-    "JAIL", "Vancouver", "Ottawa", "$75", "Calgary", "an extra roll", "Montreal", "pay $50",
-    "Toronto"]
+                  "Chance Card", "Sarnia", "Prince George", "Cell", "Peterborough", "Victoria", "Kamloops",
+                  "Chance Card", "pay $20", "Thunder Bay", "$25", "St. John's", "Free Parking", "$50",
+                  "Oshawa", "Kitchener", "Saskatoon", "Chance Card", "Vaughan", "Quebec City", "Mississauga",
+                  "JAIL", "Vancouver", "Ottawa", "$75", "Calgary", "an extra roll", "Montreal", "pay $50",
+                  "Toronto"]
     unpurchaseable_grids = [0, 3, 6, 9, 13, 14, 16, 18, 19, 23, 27, 30, 32, 34]
     grid_initial_costs = [-1, 50, 50, -1, 50, 75, -1, 75, 75, -1, 100, 100, 125, -1,
-    -1, 125, -1, 150, -1, -1, 150, 175, 175, -1, 175, 200, 200, -1, 250, 250, -1, 275, -1,
-    300, -1, 350]
+                          -1, 125, -1, 150, -1, -1, 150, 175, 175, -1, 175, 200, 200, -1, 250, 250, -1, 275, -1,
+                          300, -1, 350]
     grid_starting_worths = [-1, 10, 10, -1, 10, 20, -1, 20, 20, -1, 30, 30, 40, -1,
-    -1, 40, -1, 50, -1, -1, 50, 60, 60, -1, 60, 75, 75, -1, 100, 100, -1, 125, -1,
-    130, -1, 150]
+                            -1, 40, -1, 50, -1, -1, 50, 60, 60, -1, 60, 75, 75, -1, 100, 100, -1, 125, -1,
+                            130, -1, 150]
     # chr 0-7, 14-26, 28-31, 127-131, 134-154, 156, 157 <- These special characters are not printable
     # They are used purely for board string manipulation.
     grid_special_chars = [chr(5), chr(6), chr(7), chr(14), chr(15), chr(16), chr(17), chr(18),
-    chr(19), chr(20), chr(21), chr(22), chr(23), chr(24), chr(25), chr(26), chr(28),
-    chr(29), chr(30), chr(31), chr(127), chr(128), chr(129), chr(130), chr(131), chr(134),
-    chr(135), chr(136), chr(137), chr(138), chr(139), chr(140), chr(141), chr(142), chr(143), chr(144)]
+                          chr(19), chr(20), chr(21), chr(22), chr(23), chr(24), chr(25), chr(26), chr(28),
+                          chr(29), chr(30), chr(31), chr(127), chr(128), chr(129), chr(130), chr(131), chr(134),
+                          chr(135), chr(136), chr(137), chr(138), chr(139), chr(140), chr(141), chr(142), chr(143), chr(144)]
     placements = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 273, 386, 499, 612, 725, 838,
-    951, 1064, 1282, 1277, 1272, 1267, 1262, 1257, 1252, 1247, 1242, 1237, 1009, 896, 783,
-    670, 557, 444, 331, 218]
+                  951, 1064, 1282, 1277, 1272, 1267, 1262, 1257, 1252, 1247, 1242, 1237, 1009, 896, 783,
+                  670, 557, 444, 331, 218]
 
     i = 0
     while i < 36:
@@ -198,7 +199,7 @@ def set_up_grids() -> List[Any]:
         }
         grids.append(grid)
         i += 1
-    
+
     return grids
 
 
@@ -213,14 +214,14 @@ def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
         A list of a boolean and a string.
             The boolean is True if the player was able to choose something. False otherwise.
             The string is the sentence returned based on the player's choice.
-    
+
     Done by: Ethan Lam
     """
     global current_player
 
     given_choice = False
     sentence = ""
-    
+
     name = player_info[current_player]["name"]
     grid = player_info[current_player]["grid_pos"]
     grid_name = grid_info[grid]["name"]
@@ -262,7 +263,7 @@ def follow_up(player_info: List[Any], grid_info: List[Any]) -> List[Any]:
         sentence = get_chance_card(player_info, grid_info)
 
     advance_to_next_player(player_info)
-        
+
     return [given_choice, sentence]
 
 
@@ -272,21 +273,22 @@ def advance_to_next_player(player_info: List[Any]) -> None:
 
     Args:
         player_info: Information about each player.
-    
+
     Done by: Ethan Lam
     """
     global current_player
     while True:  # Goes to the next player, skipping those bankrupt or in jail
         current_player += 1
-        
+
         if current_player >= len(player_info):
             current_player -= len(player_info)
-        
+
         if player_info[current_player]["jail_sentence"] > 0:
             player_info[current_player]["jail_sentence"] -= 1
 
-        if player_info[current_player]["bankrupt"] == False and player_info[current_player]["jail_sentence"] == 0:
+        if player_info[current_player]["bankrupt"] is False and player_info[current_player]["jail_sentence"] == 0:
             return
+
 
 def purchase_city(player_info: List[Any], grid_info: List[Any]) -> str:
     """The current player can purchase the city if the trivia question is successfully answered.
@@ -294,10 +296,10 @@ def purchase_city(player_info: List[Any], grid_info: List[Any]) -> str:
     Args:
         player_info: Information about each player.
         grid_info: Information about each grid.
-    
+
     Returns:
         A sentence to be printed later about the result of the city purchase.
-    
+
     Done by: Ethan Lam
     """
     name = player_info[current_player]["name"]
@@ -305,7 +307,7 @@ def purchase_city(player_info: List[Any], grid_info: List[Any]) -> str:
     grid_name = grid_info[grid]["name"]
     print("To purchase this city, you must first answer the following question correctly.")
     correct = ask_trivia(TRIVIA_QUESTIONS)
-    if correct == False:
+    if correct is False:
         return "Incorrect! - You do not get to buy this city."
     player_info[current_player]["money"] -= grid_info[grid]["initial_cost"]
     grid_info[grid]["belongs_to"] = current_player
@@ -318,10 +320,10 @@ def add_community(player_info: List[Any], grid_info: List[Any]) -> str:
     Args:
         player_info: Information about each player.
         grid_info: Information about each grid.
-    
+
     Returns:
         A sentence to be printed later about the result of the community purchase.
-    
+
     Done by: Ethan Lam
     """
     name = player_info[current_player]["name"]
@@ -329,7 +331,7 @@ def add_community(player_info: List[Any], grid_info: List[Any]) -> str:
     grid_name = grid_info[grid]["name"]
     print("To purchase a community, you must first answer the following question correctly.")
     correct = ask_trivia(TRIVIA_QUESTIONS)
-    if correct == False:
+    if correct is False:
         return "Incorrect! - You do not get to buy a community."
     player_info[current_player]["money"] -= grid_info[grid]["upgrade_cost"]
     grid_info[grid]["communities"] += 1
@@ -349,17 +351,17 @@ def set_current_player_to_previous_player(player_info: List[Any]) -> None:
 
     Args:
         player_info: Information about each player.
-    
+
     Done by: Ethan Lam
     """
     global current_player
     while True:
         current_player -= 1
-        
+
         if current_player < 0:
             current_player = len(player_info) - 1
 
-        if player_info[current_player]["bankrupt"] == False and player_info[current_player]["jail_sentence"] == 0:
+        if player_info[current_player]["bankrupt"] is False and player_info[current_player]["jail_sentence"] == 0:
             return
 
 
@@ -368,7 +370,7 @@ def roll_dice(player_information: List[Any]) -> None:
 
     Args:
         player_information: Information about each player.
-    
+
     Done by: Ethan Lam
     """
     global current_player
@@ -396,14 +398,14 @@ def roll_dice(player_information: List[Any]) -> None:
             except ValueError:
                 print("Invalid choice - you must roll at least 1 dice, maximum of 3.")
                 print()
-        
+
         if player_information[current_player]["money"] - 50 * (number_of_rolls - 1) >= 0:
             player_information[current_player]["money"] -= 50 * (number_of_rolls - 1)
             break
         else:
             print("Not enough money!")
             print()
-    
+
     roll = 0
     i = 0
     while i < number_of_rolls:
@@ -426,18 +428,18 @@ def roll_dice(player_information: List[Any]) -> None:
 
 def set_up_game() -> List[Any]:
     """The initial set-up with features determined by the user.
-    
+
     Returns:
         The player and game set-up.
-    
+
     Done by: Ethan Lam
     """
     number_of_players = 0
     players = []
-    
+
     print()
     print("Enter 'b' to go back to the menu.")
-    
+
     while True:
         choice = input("Please enter the number of players (2 to 4): ")
         if choice == "b":
@@ -454,7 +456,7 @@ def set_up_game() -> List[Any]:
     print()
     print("Please enter the amount of money each player starts with (recommended: 500)")
     starting_money = get_positive_integer_max_5000("> ")
-    
+
     colour_list = ["blue", "green", "orange", "red"]
 
     used_names = []
@@ -481,7 +483,7 @@ def set_up_game() -> List[Any]:
             while j < len(colour_list):
                 print(f"[{j + 1}] {colour_list[j]}")
                 j += 1
-            
+
             try:
                 choice = int(input("> "))
                 if choice > len(colour_list) or choice < 1:
@@ -498,7 +500,7 @@ def set_up_game() -> List[Any]:
         while True:
             print(f"Which gamepiece will {player_name} be using?")
             print("This must be a single character.")
-        
+
             choice = input("> ")
 
             if len(choice) == 1:
@@ -506,11 +508,11 @@ def set_up_game() -> List[Any]:
             else:
                 print("Invalid choice - please enter just 1 character.")
                 print()
-            
+
         player_gamepiece = choice
         player_final = add_background(player_gamepiece, player_colour)
 
-        # Associates each player with a special character to help with 
+        # Associates each player with a special character to help with
         # displaying the character on the board.
         if i == 0:
             special_character = chr(0)
@@ -536,7 +538,7 @@ def set_up_game() -> List[Any]:
         }
         players.append(player)
         i += 1
-    
+
     print_player_settings(players)
 
     return players
@@ -545,9 +547,9 @@ def set_up_game() -> List[Any]:
 def print_player_settings(player_info: List[Any]) -> None:
     """Prints the settings set by the user.
 
-    Args:  
+    Args:
         player_info: A list of the players' settings.
-    
+
     Done by: Ethan Lam
     """
     spacing = 0
@@ -592,7 +594,7 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], center_of_bo
     Args:
         new_player_info: Updated information about the players and the game.
         grid_info: Information about each grid.
-        center_of_board_display: What to display in the center of the board 
+        center_of_board_display: What to display in the center of the board
             (player's dice roll results / next player to roll)
 
     Done by: Ethan Lam
@@ -688,11 +690,11 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], center_of_bo
             else:  # Already purchased by someone else
                 owner = new_player_info[belongs_to]["name"]
                 question = center_board_text(f"You paid {owner} ${cost}")
-                
+
                 new_player_info[current_player]["money"] -= cost
                 new_player_info[belongs_to]["money"] += cost
 
-        if new_player_info[current_player]["money"] < 0: # and new_player_info[current_player]["bankrupt"] == False
+        if new_player_info[current_player]["money"] < 0:  # and new_player_info[current_player]["bankrupt"] == False
             bankrupt_text = center_board_text(f"{name} has gone {bankrupt}")
             new_player_info[current_player]["bankrupt"] = True
             remove_bankrupt_player_grids(grid_info, current_player)
@@ -701,14 +703,14 @@ def display_board(new_player_info: List[Any], grid_info: List[Any], center_of_bo
             players_remaining = 0
             winner_name = ""
             while j < len(new_player_info):
-                if new_player_info[j]["bankrupt"] == False:
+                if new_player_info[j]["bankrupt"] is False:
                     winner_name = new_player_info[j]["name"]
                     players_remaining += 1
                 j += 1
             if players_remaining == 1:
                 winner_text = center_board_text(f"{winner_name} is the {winner}")
                 game_over = True
-    
+
     players_money = create_players_money_text(new_player_info)
 
     board = f"""     GO   NP   NP   CC   NP   NP   CC   NP   NP   CL
@@ -734,7 +736,7 @@ NP |    |                                       |    | NP
    |    |    |    |    |    |    |    |    |    |    |
    ---------------------------------------------------
      JL   NP   NP   NP   CC   NP   NP   NP   50   FP"""
-    
+
     # Marking cities on the board to indicate that it is already owned by a player.
     i = 0
     while i < len(grid_info):
@@ -752,7 +754,7 @@ NP |    |                                       |    | NP
     # Makes the bankrupt player invisible for future board displays.
     if new_player_info[current_player]["bankrupt"]:
         new_player_info[current_player]["char_representation"] = " "
-    
+
     board = finalize_board(grid_info, new_player_info, board)
 
     starting_game = False
@@ -773,7 +775,7 @@ def finalize_board(grid_info: List[Any], player_info: List[Any], board: str) -> 
 
     Returns:
         The complete board string ready for display.
-    
+
     Done by: Ethan Lam
     """
     bankrupt = add_colour("BANKRUPT", "red", True)
@@ -817,7 +819,7 @@ def finalize_board(grid_info: List[Any], player_info: List[Any], board: str) -> 
                     break
                 j += 1
             i += 1
-        
+
     return board
 
 
@@ -841,13 +843,13 @@ def create_players_money_text(player_info: List[Any]) -> List[str]:
         temp_name = player_info[i]["name"]
         temp_money = player_info[i]["money"]
         temp_visuals = player_info[i]["char_representation"]
-        if player_info[i]["bankrupt"] == False:
+        if player_info[i]["bankrupt"] is False:
             player_money_text[i] = (center_board_text(f"{temp_visuals} {temp_name}'s money: ${temp_money}"))
         else:
             player_money_text[i] = (center_board_text(f"{temp_visuals} {temp_name}: BANKRUPT"))
 
         i += 1
-    
+
     return player_money_text
 
 
@@ -858,7 +860,7 @@ def remove_bankrupt_player_grids(grid_info: List[Any], bankrupt_player: int) -> 
     Args:
         grid_info: Information about each grid.
         bankrupt_player: The player who went bankrupt.
-    
+
     Done by: Ethan Lam
     """
     i = 0
@@ -877,7 +879,7 @@ def grid_to_string_pos(player_info: List[Any]) -> List[int]:
 
     Returns:
         Numbers indicating where to slice the string on the board to place each player.
-    
+
     Done by: Ethan Lam
     """
     new_list = []
@@ -900,10 +902,10 @@ def center_board_text(text: str) -> str:
 
     Args:
         text: The string being centered.
-    
+
     Returns:
         The centered string with the appropriate number of spaces in front.
-    
+
     Done by: Ethan Lam
     """
     new_string = ""
@@ -920,10 +922,10 @@ def center_board_text(text: str) -> str:
 
 def get_positive_integer_max_5000(user_prompt: str) -> int:
     """Gets a positive integer between 0 and 5000 (inclusive).
- 
+
     Args:
         user_prompt: The prompt used to get the user to input the integer.
- 
+
     Returns:
         A positive integer between 0 and 5000.
 
@@ -942,7 +944,7 @@ def get_positive_integer_max_5000(user_prompt: str) -> int:
 
 def print_rules() -> None:
     """Prints out the rules of the game
-    
+
     Done by: Ethan Lam
     """
     title = add_colour("              MONOPOLY WITH A TWIST      ", "red", True)
@@ -966,19 +968,19 @@ def print_rules() -> None:
     print()
     print("Gameplay: Similar to Monopoly.")
     print("""Monopoly With A Twist is a virtual
-yet visual board game similar to Monopoly where 
+yet visual board game similar to Monopoly where
 players try to obtain as many properties as
-possible. However, instead of claiming properties, 
+possible. However, instead of claiming properties,
 the objective is to claim and build as many
 cities as possible all the while trying not to go
-bankrupt from having to pay too much tax to other 
-players. Many features, including colours, 
-gamepieces, and names are customizable. The 
-challenge with this game is that there are 
-puzzles and problems to solve before the player 
-is allowed to purchase cities. Other additions 
-such as a wide variety of luck cards and the 
-ability to choose how many dice you want to roll 
+bankrupt from having to pay too much tax to other
+players. Many features, including colours,
+gamepieces, and names are customizable. The
+challenge with this game is that there are
+puzzles and problems to solve before the player
+is allowed to purchase cities. Other additions
+such as a wide variety of luck cards and the
+ability to choose how many dice you want to roll
 all make this game very unique.""")
     print()
 
@@ -990,10 +992,10 @@ def add_colour(text: str, colour: str, bold: bool) -> str:
         text: The text being modified.
         colour: The colour it is being changed to.
         bold: Whether the text is bolded or not.
-    
+
     Returns:
         The original string with added colour and modifications.
-    
+
     Done by: Ethan Lam
     """
     colours = ["red", "green", "orange", "blue", "none", "cyan"]
@@ -1005,15 +1007,15 @@ def add_colour(text: str, colour: str, bold: bool) -> str:
         code_bold = "0"
 
     respective_codes = [f"\033[{code_bold};31;1m", f"\033[{code_bold};32;1m",
-    f"\033[{code_bold};33;1m", f"\033[{code_bold};34;1m", f"\033[{code_bold};0;1m",
-    f"\033[{code_bold};36;1m"]
+                        f"\033[{code_bold};33;1m", f"\033[{code_bold};34;1m", f"\033[{code_bold};0;1m",
+                        f"\033[{code_bold};36;1m"]
 
     i = 0
     while i < len(colours):
         if colour == colours[i]:
             break
         i += 1
-    
+
     return respective_codes[i] + text + default
 
 
@@ -1023,24 +1025,24 @@ def add_background(text: str, colour: str) -> str:
     Args:
         text: The text being modified.
         colour: The colour the background is being changed to.
-    
+
     Returns:
         The original string with added background colour.
-    
+
     Done by: Ethan Lam
     """
     colours = ["red", "green", "orange", "blue"]
     default = "\033[0;0;0m"
 
     respective_codes = ["\033[0;37;41m", "\033[0;30;42m",
-    "\033[0;37;43m", "\033[0;37;44m"]
+                        "\033[0;37;43m", "\033[0;37;44m"]
 
     i = 0
     while i < len(colours):
         if colour == colours[i]:
             break
         i += 1
-    
+
     return respective_codes[i] + text + default
 
 
@@ -1091,10 +1093,10 @@ def pay_city_taxes(player_info: List[Any], grid_info: List[Any]) -> str:
     Args:
         player_info: Information about each player.
         grid_info: Information about each grid.
-    
+
     Returns:
         A sentence to be printed in the next board display.
-    
+
     Done by: Ethan Lam
     """
     number_of_cities_owned = 0
@@ -1103,7 +1105,7 @@ def pay_city_taxes(player_info: List[Any], grid_info: List[Any]) -> str:
         if grid_info[i]["belongs_to"] == current_player:
             number_of_cities_owned += 1
         i += 1
-    
+
     name = player_info[current_player]["name"]
     percentage = number_of_cities_owned * 0.02
 
@@ -1116,10 +1118,10 @@ def donate_money(player_info: List[Any]) -> str:
 
     Args:
         player_info: Information about each player.
-    
+
     Returns:
         A sentence to be printed in the next board display.
-    
+
     Done by: Ethan Lam
     """
     player_info[current_player]["money"] = int(player_info[current_player]["money"] * 0.95)
@@ -1132,10 +1134,10 @@ def password_minigame(player_info: List[Any]) -> str:
 
     Args:
         player_info: Information about each player.
-    
+
     Returns:
         A sentence to be printed in the next board display.
-    
+
     Done by: Ethan Lam
     """
     random_number = random.randint(0, 999999)
@@ -1161,10 +1163,10 @@ def password_decoder(integer: int) -> str:
 
     Args:
         integer: Any integer.
-    
+
     Returns:
         The password.
-    
+
     Done by: Ethan Lam
     """
     new_string = ""
@@ -1185,10 +1187,10 @@ def bet_trivia(player_info: List[Any]) -> str:
 
     Args:
         player_info: Information about each player.
-    
+
     Returns:
         A sentence to be printed in the next board display.
-    
+
     Done by: Ethan Lam
     """
     print()
@@ -1196,7 +1198,7 @@ def bet_trivia(player_info: List[Any]) -> str:
     print("this next trivia questions correct? (Minimum $10)")
     print("If you get the question correct, you will double your bet amount.")
     print("If not, you will lose the amount you bet.")
-        
+
     while True:
         while True:
             try:
@@ -1222,18 +1224,18 @@ def bet_trivia(player_info: List[Any]) -> str:
         return f"{name}, YOU ARE CORRECT! YOU DOUBLED YOUR MONEY! Congratulations."
     else:
         return f"{name} YOU ARE INCORRECT! You have unfortunately lost your bet."
-    
+
 
 def guess_previous_roll(player_info: List[Any]) -> str:
     """Prompts the player to guess their previous roll.
        If successful, they will recieve $100.
-    
+
     Args:
         player_info: Information about each player.
-    
+
     Returns:
         A sentence to be printed in the next board display.
-    
+
     Done by: Ethan Lam
     """
     print()
@@ -1268,7 +1270,7 @@ def sorting_minigame(player_info: List[Any]) -> str:
 
     Returns:
         A sentence to be printed in the next board display.
-    
+
     Done by: Ethan Lam
     """
     digits = random.randint(10, 20)
@@ -1295,7 +1297,7 @@ def sort_numerical_string(string: str) -> str:
 
     Args:
         string: The string being sorted.
-    
+
     Returns:
         The sorted string.
 
@@ -1324,7 +1326,7 @@ def grant_50_dollars(player_info: List[Any]) -> str:
 
     Args:
         player_info: The player's information to be updated.
-    
+
     Returns:
         A sentence to be printed in the next board display.
 

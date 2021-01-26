@@ -1,4 +1,7 @@
 # Monopoly With A Twist
+
+[![Alt text for your video](https://media.giphy.com/media/h9e302BknHkJKW2OM7/giphy.gif)](http://www.youtube.com/watch?v=fLMY8JXAzbo "Play-through video - Click to Watch!")
+
 Monopoly With A Twist is a virtual yet visual board game similar to Monopoly where players try to obtain as many properties as possible. However, instead of claiming properties, the objective is to claim and build as many cities as possible all the while trying not to go bankrupt from having to pay too much tax to other players. Many features, including colours, gamepieces, and names are customizable. The challenge with this game is that there are puzzles and problems to solve before the player is allowed to purchase cities. Other additions such as a wide variety of luck cards and the ability to choose how many dice you want to roll all make this game very unique. 
 
 ### Members
